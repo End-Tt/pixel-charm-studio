@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account | Pixel Charm Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="inner-page">
+    <header class="site-header is-scrolled" data-header>
+      <a class="brand" href="index.html" aria-label="Pixel Charm Studio home"><span class="brand-mark" aria-hidden="true"></span><span>Pixel Charm Studio</span></a>
+      <nav class="nav-links" aria-label="Main navigation"><a href="custom.html" data-i18n="nav.custom">Custom</a><a href="kits.html" data-i18n="nav.kits">Kits</a><a href="pricing.html" data-i18n="nav.pricing">Pricing</a><a href="order.html" data-i18n="nav.order">Order</a></nav>
+      <div class="header-actions"><div class="language-switcher" aria-label="Language selector"><button type="button" data-lang-button="en" aria-pressed="true">EN</button><button type="button" data-lang-button="zh" aria-pressed="false">中文</button><button type="button" data-lang-button="de" aria-pressed="false">DE</button></div><button class="nav-cta as-button" type="button" data-logout data-i18n="auth.logout">Logout</button></div>
+    </header>
+
+    <main>
+      <section class="page-hero account-hero">
+        <p class="eyebrow" data-i18n="auth.account">Account</p>
+        <h1 data-i18n="auth.accountTitle">Your demo studio account.</h1>
+        <p data-i18n="auth.accountCopy">View saved profile details and start a new custom request.</p>
+      </section>
+      <section class="section account-grid">
+        <article class="account-panel">
+          <h2 data-i18n="auth.profile">Profile</h2>
+          <dl><div><dt data-i18n="auth.name">Name</dt><dd data-account-name></dd></div><div><dt data-i18n="auth.email">Email</dt><dd data-account-email></dd></div></dl>
+        </article>
+        <article class="account-panel">
+          <h2 data-i18n="auth.nextStep">Next step</h2>
+          <p data-i18n="auth.nextStepCopy">Start a custom request and attach the photo you want to turn into a pixel bead design.</p>
+          <a class="button button-primary inline-button" href="order.html" data-i18n="nav.cta">Start a custom</a>
+        </article>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
