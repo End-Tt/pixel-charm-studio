@@ -38,84 +38,20 @@
         <p data-i18n="customPage.copy">Keep the offer simple: one photo, one preview, one ready-to-use template or kit.</p>
       </section>
 
-      <section class="section pattern-tool-section" id="pattern-maker">
-        <div class="tool-heading">
-          <p class="eyebrow" data-i18n="pattern.eyebrow">Instant pattern maker</p>
-          <h2 data-i18n="pattern.title">Upload a photo and test the bead chart before ordering.</h2>
-          <p data-i18n="pattern.copy">Browser-side ML keeps the photo on your device, extracts the subject, simplifies colors, and exports a buildable grid.</p>
-        </div>
-
-        <div class="pattern-tool">
-          <div class="pattern-controls">
-            <label>
-              <span data-i18n="pattern.upload">Photo</span>
-              <input type="file" accept="image/png,image/jpeg,image/webp" data-pattern-photo>
-            </label>
-
-            <div class="ai-panel">
-              <div class="ai-panel-copy">
-                <strong data-i18n="pattern.aiTitle">AI subject extraction</strong>
-                <span data-ai-status data-i18n="pattern.aiIdle">Runs automatically after upload</span>
-              </div>
-              <button class="button ghost-button" type="button" disabled data-ai-cutout data-i18n="pattern.aiButton">Run AI cleanup</button>
-              <div class="ai-preview" hidden data-ai-preview-wrap>
-                <img src="" alt="AI cutout preview" data-ai-preview>
-              </div>
-            </div>
-
-            <div class="control-grid">
-              <label>
-                <span><span data-i18n="pattern.width">Width</span> <strong data-pattern-width-value>48</strong></span>
-                <input type="range" min="16" max="80" value="48" data-pattern-width>
-              </label>
-              <label>
-                <span><span data-i18n="pattern.height">Height</span> <strong data-pattern-height-value>48</strong></span>
-                <input type="range" min="16" max="80" value="48" data-pattern-height>
-              </label>
-              <label>
-                <span><span data-i18n="pattern.colors">Max colors</span> <strong data-pattern-color-value>16</strong></span>
-                <input type="range" min="6" max="28" value="16" data-pattern-colors>
-              </label>
-              <label>
-                <span data-i18n="pattern.mode">ML style</span>
-                <select data-pattern-mode>
-                  <option value="clean" data-i18n="pattern.modeClean">Clean cartoon blocks</option>
-                  <option value="realistic" data-i18n="pattern.modeRealistic">Realistic photo detail</option>
-                </select>
-              </label>
-              <label>
-                <span data-i18n="pattern.dither">Dithering</span>
-                <select data-pattern-dither>
-                  <option value="none" data-i18n="pattern.ditherNone">None</option>
-                  <option value="ordered" data-i18n="pattern.ditherOrdered">Ordered</option>
-                  <option value="diffusion" data-i18n="pattern.ditherDiffusion">Soft diffusion</option>
-                </select>
-              </label>
-              <label>
-                <span><span data-i18n="pattern.subject">Subject cleanup</span> <strong data-pattern-trim-value>70</strong></span>
-                <input type="range" min="0" max="160" value="70" data-pattern-trim>
-              </label>
-            </div>
-
-            <div class="pattern-actions">
-              <button class="button button-primary" type="button" data-pattern-generate data-i18n="pattern.generate">Generate chart</button>
-              <a class="button button-secondary dark-button is-disabled" href="#" download="pixel-charm-pattern.png" aria-disabled="true" data-pattern-download data-i18n="pattern.downloadPng">Download PNG</a>
-              <button class="button ghost-button" type="button" disabled data-pattern-csv data-i18n="pattern.downloadCsv">Download color list</button>
-            </div>
-
-            <p class="tool-note" data-i18n="pattern.note">Best results: one clear subject, daylight, plain background, no tiny details.</p>
+      <section class="section studio-section">
+        <div class="studio-panel">
+          <div>
+            <p class="eyebrow" data-i18n="studio.eyebrow">Human-refined service</p>
+            <h2 data-i18n="studio.title">Upload a normal photo. A designer turns it into a bead-ready pattern.</h2>
+            <p data-i18n="studio.copy">No automatic generator is shown to customers. The site collects the request, then the pattern is cleaned, simplified, and checked by hand before preview approval.</p>
+            <a class="button button-primary inline-button" href="order.html" data-i18n="studio.cta">Send a photo request</a>
           </div>
-
-          <div class="pattern-preview-shell">
-            <div class="pattern-preview-top">
-              <strong data-i18n="pattern.preview">Generated chart</strong>
-              <span data-pattern-status data-i18n="pattern.statusEmpty">Upload a photo to begin</span>
-            </div>
-            <div class="pattern-canvas-wrap">
-              <canvas width="560" height="560" data-pattern-canvas></canvas>
-            </div>
-            <div class="pattern-legend" data-pattern-legend></div>
-          </div>
+          <ol class="studio-checklist">
+            <li data-i18n="studio.item1">Crop and simplify the main subject</li>
+            <li data-i18n="studio.item2">Match colors to available bead inventory</li>
+            <li data-i18n="studio.item3">Prepare PDF chart, bead count, and kit notes</li>
+            <li data-i18n="studio.item4">Send one preview before final delivery</li>
+          </ol>
         </div>
       </section>
 

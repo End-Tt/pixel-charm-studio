@@ -8,27 +8,6 @@ const orderForm = document.querySelector("[data-order-form]");
 const photoInput = document.querySelector("[data-photo]");
 const preview = document.querySelector("[data-preview]");
 const languageButtons = document.querySelectorAll("[data-lang-button]");
-const patternPhotoInput = document.querySelector("[data-pattern-photo]");
-const patternWidthInput = document.querySelector("[data-pattern-width]");
-const patternHeightInput = document.querySelector("[data-pattern-height]");
-const patternColorInput = document.querySelector("[data-pattern-colors]");
-const patternTrimInput = document.querySelector("[data-pattern-trim]");
-const patternModeSelect = document.querySelector("[data-pattern-mode]");
-const patternDitherSelect = document.querySelector("[data-pattern-dither]");
-const patternWidthValue = document.querySelector("[data-pattern-width-value]");
-const patternHeightValue = document.querySelector("[data-pattern-height-value]");
-const patternColorValue = document.querySelector("[data-pattern-color-value]");
-const patternTrimValue = document.querySelector("[data-pattern-trim-value]");
-const patternGenerateButton = document.querySelector("[data-pattern-generate]");
-const patternCanvas = document.querySelector("[data-pattern-canvas]");
-const patternStatus = document.querySelector("[data-pattern-status]");
-const patternLegend = document.querySelector("[data-pattern-legend]");
-const patternDownload = document.querySelector("[data-pattern-download]");
-const patternCsvButton = document.querySelector("[data-pattern-csv]");
-const aiCutoutButton = document.querySelector("[data-ai-cutout]");
-const aiStatus = document.querySelector("[data-ai-status]");
-const aiPreviewWrap = document.querySelector("[data-ai-preview-wrap]");
-const aiPreviewImage = document.querySelector("[data-ai-preview]");
 
 const translations = {
   en: {
@@ -467,167 +446,104 @@ Object.assign(translations.de, {
 });
 
 Object.assign(translations.en, {
-  "pattern.eyebrow": "Instant pattern maker",
-  "pattern.title": "Upload a photo and test the bead chart before ordering.",
-  "pattern.copy": "Browser-side ML keeps the photo on your device, extracts the subject, simplifies colors, and exports a buildable grid.",
-  "pattern.upload": "Photo",
-  "pattern.width": "Width",
-  "pattern.height": "Height",
-  "pattern.colors": "Max colors",
-  "pattern.mode": "ML style",
-  "pattern.modeClean": "Clean cartoon blocks",
-  "pattern.modeRealistic": "Realistic photo detail",
-  "pattern.dither": "Dithering",
-  "pattern.ditherNone": "None",
-  "pattern.ditherOrdered": "Ordered",
-  "pattern.ditherDiffusion": "Soft diffusion",
-  "pattern.subject": "Subject cleanup",
-  "pattern.generate": "Generate chart",
-  "pattern.downloadPng": "Download PNG",
-  "pattern.downloadCsv": "Download color list",
-  "pattern.note": "Best results: one clear subject, daylight, plain background, no tiny details.",
-  "pattern.preview": "Generated chart",
-  "pattern.statusEmpty": "Upload a photo to begin",
-  "pattern.statusLoaded": "Photo loaded. Generate a chart.",
-  "pattern.statusWorking": "Building bead chart...",
-  "pattern.statusReady": "{width}x{height} grid · {beads} beads · {colors} colors",
-  "pattern.statusError": "This image could not be processed. Try another JPG, PNG, or WebP.",
-  "pattern.aiTitle": "AI subject extraction",
-  "pattern.aiIdle": "Runs automatically after upload",
-  "pattern.aiButton": "Run AI cleanup",
-  "pattern.aiLoading": "Loading AI model...",
-  "pattern.aiProgress": "Loading AI model {percent}%",
-  "pattern.aiRunning": "Removing background and keeping the subject...",
-  "pattern.aiReady": "AI cutout ready. Chart rebuilt from subject only.",
-  "pattern.aiFallback": "AI cleanup failed. Using smart non-AI cleanup."
+  "studio.eyebrow": "Human-refined service",
+  "studio.title": "Upload a normal photo. A designer turns it into a bead-ready pattern.",
+  "studio.copy": "No automatic generator is shown to customers. The site collects the request, then the pattern is cleaned, simplified, and checked by hand before preview approval.",
+  "studio.cta": "Send a photo request",
+  "studio.item1": "Crop and simplify the main subject",
+  "studio.item2": "Match colors to available bead inventory",
+  "studio.item3": "Prepare PDF chart, bead count, and kit notes",
+  "studio.item4": "Send one preview before final delivery",
+  "shop.eyebrow": "Demo shop",
+  "shop.title": "A starter catalog inspired by what sells in Asia, rewritten for EU gifting.",
+  "shop.copy": "Use these demo products to test demand before holding deep inventory. Images and copy are original placeholders, not copied marketplace assets.",
+  "shop.petPattern": "Custom Pet Pattern",
+  "shop.petPatternCopy": "Hand-refined PDF chart, color list, and one preview revision.",
+  "shop.petKit": "Pet Charm DIY Kit",
+  "shop.petKitCopy": "Sorted beads, pattern card, keychain hardware, and gift pouch.",
+  "shop.couple": "Couple Mini Magnet",
+  "shop.coupleCopy": "A small two-person pixel magnet for anniversaries and dorm rooms.",
+  "shop.flower": "Cozy Flower Coaster",
+  "shop.flowerCopy": "Beginner-friendly floral coaster kit with soft color palette.",
+  "shop.starter": "Starter Tool Set",
+  "shop.starterCopy": "Pegboard, tweezers, ironing paper, and a compact color starter pack.",
+  "shop.refill": "Color Refill Pack",
+  "shop.refillCopy": "Curated refill colors for pets, skin tones, flowers, and outlines.",
+  "shop.seasonal": "Seasonal Lucky Charm",
+  "shop.seasonalCopy": "Limited small charm kit for holidays, birthdays, or exam season.",
+  "shop.finished": "Finished Gift Charm",
+  "shop.finishedCopy": "A handmade finished piece for customers who do not want to craft.",
+  "shop.from": "from",
+  "shop.view": "Request this"
 });
 
 Object.assign(translations.zh, {
-  "pattern.eyebrow": "即时图纸生成器",
-  "pattern.title": "上传照片，先测试拼豆图纸效果再下单。",
-  "pattern.copy": "浏览器端机器学习不会把照片上传到服务器，会提取主体、简化颜色，并导出可制作的格子图。",
-  "pattern.upload": "照片",
-  "pattern.width": "宽度",
-  "pattern.height": "高度",
-  "pattern.colors": "最多颜色",
-  "pattern.mode": "机器学习风格",
-  "pattern.modeClean": "干净卡通块面",
-  "pattern.modeRealistic": "真实照片细节",
-  "pattern.dither": "抖动算法",
-  "pattern.ditherNone": "不使用",
-  "pattern.ditherOrdered": "规则抖动",
-  "pattern.ditherDiffusion": "柔和误差扩散",
-  "pattern.subject": "主体清理",
-  "pattern.generate": "生成图纸",
-  "pattern.downloadPng": "下载 PNG",
-  "pattern.downloadCsv": "下载颜色清单",
-  "pattern.note": "效果最好：单一清晰主体、自然光、简单背景、细节不要太碎。",
-  "pattern.preview": "生成图纸",
-  "pattern.statusEmpty": "上传照片后开始",
-  "pattern.statusLoaded": "照片已载入，可以生成图纸。",
-  "pattern.statusWorking": "正在生成拼豆图纸...",
-  "pattern.statusReady": "{width}x{height} 格 · {beads} 颗豆 · {colors} 色",
-  "pattern.statusError": "这张图无法处理，请换一张 JPG、PNG 或 WebP。",
-  "pattern.aiTitle": "AI 主体提取",
-  "pattern.aiIdle": "上传后自动运行",
-  "pattern.aiButton": "重新 AI 清理",
-  "pattern.aiLoading": "正在加载 AI 模型...",
-  "pattern.aiProgress": "AI 模型加载 {percent}%",
-  "pattern.aiRunning": "正在抠图并保留主体...",
-  "pattern.aiReady": "AI 抠图完成，已用主体重新生成图纸。",
-  "pattern.aiFallback": "AI 清理失败，已使用智能非 AI 清理。"
+  "studio.eyebrow": "人工精修服务",
+  "studio.title": "客户上传普通照片，设计师整理成可制作的拼豆图纸。",
+  "studio.copy": "不把自动生成器展示给客户。网站只收集需求，后续由人工裁切主体、简化颜色、检查可制作性，再发送预览确认。",
+  "studio.cta": "上传照片需求",
+  "studio.item1": "裁切并简化主体",
+  "studio.item2": "匹配现有拼豆库存颜色",
+  "studio.item3": "准备 PDF 图纸、豆子数量和材料包备注",
+  "studio.item4": "最终交付前发送一次预览",
+  "shop.eyebrow": "店铺 Demo",
+  "shop.title": "参考亚洲市场热卖品类，改写成适合欧洲送礼的首批商品。",
+  "shop.copy": "这些 demo 用来测试需求，不需要一开始囤很多货。图片和文案是原创占位，不直接复制平台素材。",
+  "shop.petPattern": "宠物定制图纸",
+  "shop.petPatternCopy": "人工精修 PDF 图纸、颜色清单和一次预览修改。",
+  "shop.petKit": "宠物挂件材料包",
+  "shop.petKitCopy": "分装拼豆、图纸卡、钥匙扣配件和礼品袋。",
+  "shop.couple": "情侣迷你磁贴",
+  "shop.coupleCopy": "适合纪念日和宿舍小礼物的双人像素磁贴。",
+  "shop.flower": "治愈花朵杯垫",
+  "shop.flowerCopy": "适合新手的花朵杯垫材料包，配色柔和。",
+  "shop.starter": "新手工具套装",
+  "shop.starterCopy": "模板板、镊子、熨烫纸和基础色拼豆组合。",
+  "shop.refill": "颜色补充包",
+  "shop.refillCopy": "宠物、肤色、花朵和描边常用色补充装。",
+  "shop.seasonal": "季节幸运挂件",
+  "shop.seasonalCopy": "节日、生日或考试季可限量上新的小挂件材料包。",
+  "shop.finished": "成品礼物挂件",
+  "shop.finishedCopy": "给不想自己动手的客户，提供手工完成版。",
+  "shop.from": "起",
+  "shop.view": "咨询这款"
 });
 
 Object.assign(translations.de, {
-  "pattern.eyebrow": "Sofortiger Vorlagen-Generator",
-  "pattern.title": "Foto hochladen und die Perlenvorlage vor der Bestellung testen.",
-  "pattern.copy": "Browserseitiges ML behält das Foto auf deinem Gerät, stellt das Motiv frei, reduziert Farben und exportiert ein baubares Raster.",
-  "pattern.upload": "Foto",
-  "pattern.width": "Breite",
-  "pattern.height": "Höhe",
-  "pattern.colors": "Max. Farben",
-  "pattern.mode": "ML-Stil",
-  "pattern.modeClean": "Klare Cartoon-Blöcke",
-  "pattern.modeRealistic": "Realistische Fotodetails",
-  "pattern.dither": "Dithering",
-  "pattern.ditherNone": "Aus",
-  "pattern.ditherOrdered": "Geordnet",
-  "pattern.ditherDiffusion": "Weiche Diffusion",
-  "pattern.subject": "Motiv bereinigen",
-  "pattern.generate": "Vorlage erstellen",
-  "pattern.downloadPng": "PNG herunterladen",
-  "pattern.downloadCsv": "Farbliste herunterladen",
-  "pattern.note": "Beste Ergebnisse: ein klares Motiv, Tageslicht, ruhiger Hintergrund, keine winzigen Details.",
-  "pattern.preview": "Generierte Vorlage",
-  "pattern.statusEmpty": "Lade ein Foto hoch",
-  "pattern.statusLoaded": "Foto geladen. Vorlage kann erstellt werden.",
-  "pattern.statusWorking": "Perlenvorlage wird erstellt...",
-  "pattern.statusReady": "{width}x{height} Raster · {beads} Perlen · {colors} Farben",
-  "pattern.statusError": "Dieses Bild konnte nicht verarbeitet werden. Versuche JPG, PNG oder WebP.",
-  "pattern.aiTitle": "KI-Motivfreistellung",
-  "pattern.aiIdle": "Läuft automatisch nach dem Upload",
-  "pattern.aiButton": "KI-Bereinigung starten",
-  "pattern.aiLoading": "KI-Modell wird geladen...",
-  "pattern.aiProgress": "KI-Modell lädt {percent}%",
-  "pattern.aiRunning": "Hintergrund wird entfernt und Motiv behalten...",
-  "pattern.aiReady": "KI-Ausschnitt fertig. Vorlage aus Motiv neu erstellt.",
-  "pattern.aiFallback": "KI-Bereinigung fehlgeschlagen. Smarte lokale Bereinigung aktiv."
+  "studio.eyebrow": "Manuell verfeinerter Service",
+  "studio.title": "Kundinnen laden ein normales Foto hoch. Ein Design wird daraus eine perlenfertige Vorlage.",
+  "studio.copy": "Der automatische Generator wird nicht gezeigt. Die Website sammelt die Anfrage, danach wird das Motiv per Hand bereinigt, vereinfacht und vor der Freigabe geprüft.",
+  "studio.cta": "Fotoanfrage senden",
+  "studio.item1": "Hauptmotiv zuschneiden und vereinfachen",
+  "studio.item2": "Farben mit verfügbarem Perlenbestand abgleichen",
+  "studio.item3": "PDF-Vorlage, Perlenanzahl und Kit-Notizen vorbereiten",
+  "studio.item4": "Eine Vorschau vor der finalen Lieferung senden",
+  "shop.eyebrow": "Demo-Shop",
+  "shop.title": "Ein Startkatalog nach asiatischen Topsellern, angepasst für EU-Geschenke.",
+  "shop.copy": "Diese Demo-Produkte testen Nachfrage, bevor viel Inventar gekauft wird. Bilder und Texte sind eigene Platzhalter, keine kopierten Marketplace-Assets.",
+  "shop.petPattern": "Custom Pet Pattern",
+  "shop.petPatternCopy": "Handverfeinerte PDF-Vorlage, Farbliste und eine Vorschau-Revision.",
+  "shop.petKit": "Pet Charm DIY Kit",
+  "shop.petKitCopy": "Sortierte Perlen, Vorlage, Schlüsselanhänger-Zubehör und Geschenkbeutel.",
+  "shop.couple": "Couple Mini Magnet",
+  "shop.coupleCopy": "Kleiner Zwei-Personen-Pixelmagnet für Jahrestage und Wohnheime.",
+  "shop.flower": "Cozy Flower Coaster",
+  "shop.flowerCopy": "Einsteigerfreundliches Blumen-Untersetzer-Kit mit weicher Farbpalette.",
+  "shop.starter": "Starter Tool Set",
+  "shop.starterCopy": "Steckplatte, Pinzette, Bügelpapier und kompakte Starterfarben.",
+  "shop.refill": "Color Refill Pack",
+  "shop.refillCopy": "Kuratierte Nachfüllfarben für Haustiere, Hauttöne, Blumen und Konturen.",
+  "shop.seasonal": "Seasonal Lucky Charm",
+  "shop.seasonalCopy": "Limitierte kleine Charms für Feiertage, Geburtstage oder Prüfungszeit.",
+  "shop.finished": "Finished Gift Charm",
+  "shop.finishedCopy": "Ein fertiges Handmade-Stück für Kundinnen, die nicht basteln möchten.",
+  "shop.from": "ab",
+  "shop.view": "Anfragen"
 });
+
 
 let currentLanguage = localStorage.getItem("pixelCharmLanguage") || "en";
 
-const beadPalette = [
-  { code: "W01", name: "White", hex: "#f8f5ec" },
-  { code: "C02", name: "Cream", hex: "#f4dfb1" },
-  { code: "Y03", name: "Yellow", hex: "#ffd84a" },
-  { code: "Y04", name: "Gold", hex: "#f0aa25" },
-  { code: "O05", name: "Orange", hex: "#f47a31" },
-  { code: "R06", name: "Tomato", hex: "#e64535" },
-  { code: "R07", name: "Red", hex: "#bf2430" },
-  { code: "P08", name: "Blush", hex: "#f7a7b8" },
-  { code: "P09", name: "Pink", hex: "#ec5e9c" },
-  { code: "P10", name: "Magenta", hex: "#b53a87" },
-  { code: "V11", name: "Lavender", hex: "#bda5d8" },
-  { code: "V12", name: "Purple", hex: "#6d4b9a" },
-  { code: "B13", name: "Sky", hex: "#8fc7e8" },
-  { code: "B14", name: "Blue", hex: "#2d7fbd" },
-  { code: "B15", name: "Navy", hex: "#1f3d68" },
-  { code: "G16", name: "Mint", hex: "#9ad8c0" },
-  { code: "G17", name: "Green", hex: "#41a866" },
-  { code: "G18", name: "Olive", hex: "#6c8c45" },
-  { code: "T19", name: "Teal", hex: "#168f8b" },
-  { code: "N20", name: "Tan", hex: "#d7a676" },
-  { code: "N21", name: "Caramel", hex: "#a96d3d" },
-  { code: "N22", name: "Brown", hex: "#6b442e" },
-  { code: "N23", name: "Dark brown", hex: "#3b2922" },
-  { code: "S24", name: "Light gray", hex: "#d9d7d0" },
-  { code: "S25", name: "Gray", hex: "#8e8d88" },
-  { code: "S26", name: "Charcoal", hex: "#45484c" },
-  { code: "K27", name: "Black", hex: "#171717" },
-  { code: "F28", name: "Peach", hex: "#f0b48f" },
-  { code: "F29", name: "Sand", hex: "#e2c795" },
-  { code: "F30", name: "Coral", hex: "#eb7663" },
-  { code: "A31", name: "Aqua", hex: "#4ec6d3" },
-  { code: "L32", name: "Lime", hex: "#b8d957" }
-].map((color) => {
-  const rgb = hexToRgb(color.hex);
-  return { ...color, rgb, lab: rgbToLab(rgb) };
-});
-
-const patternState = {
-  file: null,
-  image: null,
-  originalImage: null,
-  aiImage: null,
-  aiPreviewUrl: "",
-  aiRunId: 0,
-  cells: [],
-  colors: [],
-  csv: ""
-};
-
-const AI_BACKGROUND_REMOVAL_MODULE = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
-let aiBackgroundRemovalPromise = null;
 
 function syncHeader() {
   if (header && !document.body.classList.contains("inner-page")) {
@@ -716,702 +632,6 @@ function applyLanguage(language) {
   translateOptions(subjectSelect, optionTranslations.subjects);
   translateOptions(sizeSelect, optionTranslations.sizes);
   syncEstimate();
-  syncPatternControls();
-  if (patternState.colors.length) {
-    renderPatternLegend(patternState.colors);
-    updatePatternStatus(patternState.cells.filter(Boolean).length);
-  }
-}
-
-function t(key) {
-  return translations[currentLanguage][key] || translations.en[key] || key;
-}
-
-function hexToRgb(hex) {
-  const value = hex.replace("#", "");
-  return [
-    parseInt(value.slice(0, 2), 16),
-    parseInt(value.slice(2, 4), 16),
-    parseInt(value.slice(4, 6), 16)
-  ];
-}
-
-function colorDistance(a, b) {
-  const dr = a[0] - b[0];
-  const dg = a[1] - b[1];
-  const db = a[2] - b[2];
-  return dr * dr + dg * dg + db * db;
-}
-
-function clamp(value, min = 0, max = 255) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function pivotRgb(value) {
-  const normalized = value / 255;
-  return normalized <= 0.04045
-    ? normalized / 12.92
-    : ((normalized + 0.055) / 1.055) ** 2.4;
-}
-
-function pivotXyz(value) {
-  return value > 0.008856 ? Math.cbrt(value) : (7.787 * value) + (16 / 116);
-}
-
-function rgbToLab(rgb) {
-  const r = pivotRgb(rgb[0]);
-  const g = pivotRgb(rgb[1]);
-  const b = pivotRgb(rgb[2]);
-
-  const x = ((r * 0.4124564) + (g * 0.3575761) + (b * 0.1804375)) / 0.95047;
-  const y = (r * 0.2126729) + (g * 0.7151522) + (b * 0.072175);
-  const z = ((r * 0.0193339) + (g * 0.119192) + (b * 0.9503041)) / 1.08883;
-
-  const fx = pivotXyz(x);
-  const fy = pivotXyz(y);
-  const fz = pivotXyz(z);
-
-  return [
-    (116 * fy) - 16,
-    500 * (fx - fy),
-    200 * (fy - fz)
-  ];
-}
-
-function degreesToRadians(degrees) {
-  return degrees * (Math.PI / 180);
-}
-
-function radiansToDegrees(radians) {
-  return radians * (180 / Math.PI);
-}
-
-function ciede2000(labA, labB) {
-  const [l1, a1, b1] = labA;
-  const [l2, a2, b2] = labB;
-  const kL = 1;
-  const kC = 1;
-  const kH = 1;
-  const c1 = Math.hypot(a1, b1);
-  const c2 = Math.hypot(a2, b2);
-  const cBar = (c1 + c2) / 2;
-  const cBar7 = cBar ** 7;
-  const g = 0.5 * (1 - Math.sqrt(cBar7 / (cBar7 + (25 ** 7))));
-  const a1Prime = (1 + g) * a1;
-  const a2Prime = (1 + g) * a2;
-  const c1Prime = Math.hypot(a1Prime, b1);
-  const c2Prime = Math.hypot(a2Prime, b2);
-  const h1Prime = (radiansToDegrees(Math.atan2(b1, a1Prime)) + 360) % 360;
-  const h2Prime = (radiansToDegrees(Math.atan2(b2, a2Prime)) + 360) % 360;
-  const deltaLPrime = l2 - l1;
-  const deltaCPrime = c2Prime - c1Prime;
-  let deltahPrime = h2Prime - h1Prime;
-
-  if (c1Prime * c2Prime === 0) {
-    deltahPrime = 0;
-  } else if (deltahPrime > 180) {
-    deltahPrime -= 360;
-  } else if (deltahPrime < -180) {
-    deltahPrime += 360;
-  }
-
-  const deltaHPrime = 2 * Math.sqrt(c1Prime * c2Prime) * Math.sin(degreesToRadians(deltahPrime / 2));
-  const lBarPrime = (l1 + l2) / 2;
-  const cBarPrime = (c1Prime + c2Prime) / 2;
-  let hBarPrime = h1Prime + h2Prime;
-
-  if (c1Prime * c2Prime === 0) {
-    hBarPrime = h1Prime + h2Prime;
-  } else if (Math.abs(h1Prime - h2Prime) > 180) {
-    hBarPrime = h1Prime + h2Prime < 360 ? (h1Prime + h2Prime + 360) / 2 : (h1Prime + h2Prime - 360) / 2;
-  } else {
-    hBarPrime = (h1Prime + h2Prime) / 2;
-  }
-
-  const tValue = 1
-    - (0.17 * Math.cos(degreesToRadians(hBarPrime - 30)))
-    + (0.24 * Math.cos(degreesToRadians(2 * hBarPrime)))
-    + (0.32 * Math.cos(degreesToRadians((3 * hBarPrime) + 6)))
-    - (0.2 * Math.cos(degreesToRadians((4 * hBarPrime) - 63)));
-  const deltaTheta = 30 * Math.exp(-(((hBarPrime - 275) / 25) ** 2));
-  const rC = 2 * Math.sqrt((cBarPrime ** 7) / ((cBarPrime ** 7) + (25 ** 7)));
-  const sL = 1 + ((0.015 * ((lBarPrime - 50) ** 2)) / Math.sqrt(20 + ((lBarPrime - 50) ** 2)));
-  const sC = 1 + (0.045 * cBarPrime);
-  const sH = 1 + (0.015 * cBarPrime * tValue);
-  const rT = -Math.sin(degreesToRadians(2 * deltaTheta)) * rC;
-
-  return Math.sqrt(
-    ((deltaLPrime / (kL * sL)) ** 2)
-    + ((deltaCPrime / (kC * sC)) ** 2)
-    + ((deltaHPrime / (kH * sH)) ** 2)
-    + (rT * (deltaCPrime / (kC * sC)) * (deltaHPrime / (kH * sH)))
-  );
-}
-
-function nearestPaletteColor(rgb, palette = beadPalette) {
-  const lab = rgbToLab(rgb);
-  return palette.reduce((best, color) => {
-    const score = ciede2000(lab, color.lab);
-    return score < best.score ? { color, score } : best;
-  }, { color: palette[0], score: Infinity }).color;
-}
-
-function syncPatternControls() {
-  if (!patternWidthInput) {
-    return;
-  }
-  patternWidthValue.textContent = patternWidthInput.value;
-  patternHeightValue.textContent = patternHeightInput.value;
-  patternColorValue.textContent = patternColorInput.value;
-  patternTrimValue.textContent = patternTrimInput.value;
-}
-
-function setPatternButtons(isReady) {
-  if (patternDownload) {
-    patternDownload.classList.toggle("is-disabled", !isReady);
-    patternDownload.setAttribute("aria-disabled", String(!isReady));
-  }
-  if (patternCsvButton) {
-    patternCsvButton.disabled = !isReady;
-  }
-}
-
-function setAiStatus(key, replacements = {}) {
-  if (!aiStatus) {
-    return;
-  }
-  let text = t(key);
-  Object.entries(replacements).forEach(([name, value]) => {
-    text = text.replace(`{${name}}`, String(value));
-  });
-  aiStatus.textContent = text;
-}
-
-function setAiBusy(isBusy) {
-  if (aiCutoutButton) {
-    aiCutoutButton.disabled = isBusy || !patternState.file;
-  }
-}
-
-function resetPatternOutput() {
-  patternState.cells = [];
-  patternState.colors = [];
-  patternState.csv = "";
-  if (patternLegend) {
-    patternLegend.innerHTML = "";
-  }
-  setPatternButtons(false);
-}
-
-function loadImageFromSource(source) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener("load", () => resolve(image), { once: true });
-    image.addEventListener("error", reject, { once: true });
-    image.src = source;
-  });
-}
-
-function getAiBackgroundRemover() {
-  if (!aiBackgroundRemovalPromise) {
-    aiBackgroundRemovalPromise = import(AI_BACKGROUND_REMOVAL_MODULE).then((module) => {
-      return module.default || module.removeBackground || module.imglyRemoveBackground;
-    });
-  }
-  return aiBackgroundRemovalPromise;
-}
-
-function setAiPreview(blob) {
-  if (!aiPreviewImage || !aiPreviewWrap) {
-    return;
-  }
-  if (patternState.aiPreviewUrl) {
-    URL.revokeObjectURL(patternState.aiPreviewUrl);
-  }
-  patternState.aiPreviewUrl = URL.createObjectURL(blob);
-  aiPreviewImage.src = patternState.aiPreviewUrl;
-  aiPreviewWrap.hidden = false;
-}
-
-async function runAiCutout() {
-  if (!patternState.file) {
-    return;
-  }
-
-  const runId = patternState.aiRunId + 1;
-  patternState.aiRunId = runId;
-  setAiBusy(true);
-  setAiStatus("pattern.aiLoading");
-
-  try {
-    const removeBackground = await getAiBackgroundRemover();
-    if (runId !== patternState.aiRunId || typeof removeBackground !== "function") {
-      return;
-    }
-
-    setAiStatus("pattern.aiRunning");
-    const cutoutBlob = await removeBackground(patternState.file, {
-      model: "isnet_fp16",
-      output: { format: "image/png", type: "foreground" },
-      progress: (key, current, total) => {
-        if (runId !== patternState.aiRunId || !total) {
-          return;
-        }
-        const percent = Math.min(100, Math.round((current / total) * 100));
-        setAiStatus("pattern.aiProgress", { percent });
-      }
-    });
-
-    if (runId !== patternState.aiRunId) {
-      return;
-    }
-
-    setAiPreview(cutoutBlob);
-    const cutoutUrl = URL.createObjectURL(cutoutBlob);
-    const aiImage = await loadImageFromSource(cutoutUrl);
-    URL.revokeObjectURL(cutoutUrl);
-
-    if (runId !== patternState.aiRunId) {
-      return;
-    }
-
-    patternState.aiImage = aiImage;
-    patternState.image = aiImage;
-    setAiStatus("pattern.aiReady");
-    generatePattern();
-  } catch (error) {
-    if (runId === patternState.aiRunId) {
-      setAiStatus("pattern.aiFallback");
-      if (patternState.originalImage) {
-        patternState.image = patternState.originalImage;
-        generatePattern();
-      }
-    }
-  } finally {
-    if (runId === patternState.aiRunId) {
-      setAiBusy(false);
-    }
-  }
-}
-
-function drawImageCover(context, image, width, height) {
-  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-  const sourceWidth = width / scale;
-  const sourceHeight = height / scale;
-  const sourceX = (image.naturalWidth - sourceWidth) / 2;
-  const sourceY = (image.naturalHeight - sourceHeight) / 2;
-  context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
-}
-
-function findAlphaBounds(image) {
-  const maxSide = 420;
-  const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
-  const scanWidth = Math.max(1, Math.round(image.naturalWidth * scale));
-  const scanHeight = Math.max(1, Math.round(image.naturalHeight * scale));
-  const scanCanvas = document.createElement("canvas");
-  scanCanvas.width = scanWidth;
-  scanCanvas.height = scanHeight;
-  const scanContext = scanCanvas.getContext("2d", { willReadFrequently: true });
-  scanContext.drawImage(image, 0, 0, scanWidth, scanHeight);
-  const data = scanContext.getImageData(0, 0, scanWidth, scanHeight).data;
-  let minX = scanWidth;
-  let minY = scanHeight;
-  let maxX = -1;
-  let maxY = -1;
-  let visiblePixels = 0;
-
-  for (let y = 0; y < scanHeight; y += 1) {
-    for (let x = 0; x < scanWidth; x += 1) {
-      const alpha = data[(y * scanWidth + x) * 4 + 3];
-      if (alpha > 24) {
-        visiblePixels += 1;
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-      }
-    }
-  }
-
-  if (!visiblePixels || visiblePixels > scanWidth * scanHeight * 0.96) {
-    return null;
-  }
-
-  const padding = Math.round(Math.max(maxX - minX, maxY - minY) * 0.08);
-  minX = Math.max(0, minX - padding);
-  minY = Math.max(0, minY - padding);
-  maxX = Math.min(scanWidth - 1, maxX + padding);
-  maxY = Math.min(scanHeight - 1, maxY + padding);
-
-  return {
-    x: minX / scale,
-    y: minY / scale,
-    width: (maxX - minX + 1) / scale,
-    height: (maxY - minY + 1) / scale
-  };
-}
-
-function drawImageSubjectAware(context, image, width, height) {
-  const bounds = findAlphaBounds(image);
-  if (!bounds) {
-    drawImageCover(context, image, width, height);
-    return;
-  }
-
-  const scale = Math.min(width / bounds.width, height / bounds.height);
-  const targetWidth = bounds.width * scale;
-  const targetHeight = bounds.height * scale;
-  const targetX = (width - targetWidth) / 2;
-  const targetY = (height - targetHeight) / 2;
-  context.drawImage(
-    image,
-    bounds.x,
-    bounds.y,
-    bounds.width,
-    bounds.height,
-    targetX,
-    targetY,
-    targetWidth,
-    targetHeight
-  );
-}
-
-function collectBackgroundSamples(imageData, width, height) {
-  const samples = [];
-  const step = Math.max(1, Math.floor(Math.min(width, height) / 8));
-  const points = [];
-
-  for (let x = 0; x < width; x += step) {
-    points.push([x, 0], [x, height - 1]);
-  }
-  for (let y = 0; y < height; y += step) {
-    points.push([0, y], [width - 1, y]);
-  }
-
-  points.push([width - 1, height - 1]);
-
-  points.forEach(([x, y]) => {
-    const index = (y * width + x) * 4;
-    if (imageData[index + 3] > 32) {
-      samples.push([imageData[index], imageData[index + 1], imageData[index + 2]]);
-    }
-  });
-
-  return samples;
-}
-
-function shouldRemoveBackground(rgb, samples, threshold) {
-  if (threshold <= 0 || !samples.length) {
-    return false;
-  }
-  const thresholdScore = threshold * threshold;
-  return samples.some((sample) => colorDistance(rgb, sample) < thresholdScore);
-}
-
-function adjustRgbForMode(rgb, mode) {
-  const contrast = mode === "realistic" ? 1.06 : 1.22;
-  const saturation = mode === "realistic" ? 1.04 : 1.2;
-  const contrasted = rgb.map((channel) => clamp(((channel - 128) * contrast) + 128));
-  const gray = (contrasted[0] * 0.299) + (contrasted[1] * 0.587) + (contrasted[2] * 0.114);
-  return contrasted.map((channel) => clamp(gray + ((channel - gray) * saturation)));
-}
-
-function bayerOffset(x, y) {
-  const bayer = [
-    [0, 8, 2, 10],
-    [12, 4, 14, 6],
-    [3, 11, 1, 9],
-    [15, 7, 13, 5]
-  ];
-  return ((bayer[y % 4][x % 4] / 16) - 0.5) * 34;
-}
-
-function addError(target, error, factor) {
-  if (!target) {
-    return;
-  }
-  target[0] = clamp(target[0] + (error[0] * factor));
-  target[1] = clamp(target[1] + (error[1] * factor));
-  target[2] = clamp(target[2] + (error[2] * factor));
-}
-
-function mapPixelsToPalette(pixelBuffer, selectedPalette, width, height, ditherMode) {
-  const working = pixelBuffer.map((pixel) => (pixel ? [...pixel] : null));
-  const cells = new Array(working.length).fill(null);
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width) + x;
-      const pixel = working[index];
-      if (!pixel) {
-        continue;
-      }
-
-      let mappedRgb = pixel;
-      if (ditherMode === "ordered") {
-        const offset = bayerOffset(x, y);
-        mappedRgb = [
-          clamp(pixel[0] + offset),
-          clamp(pixel[1] + offset),
-          clamp(pixel[2] + offset)
-        ];
-      }
-
-      const color = nearestPaletteColor(mappedRgb, selectedPalette);
-      cells[index] = color;
-
-      if (ditherMode === "diffusion") {
-        const error = [
-          pixel[0] - color.rgb[0],
-          pixel[1] - color.rgb[1],
-          pixel[2] - color.rgb[2]
-        ];
-        addError(x < width - 1 ? working[index + 1] : null, error, 7 / 16);
-        addError(x > 0 ? working[index + width - 1] : null, error, 3 / 16);
-        addError(working[index + width], error, 5 / 16);
-        addError(x < width - 1 ? working[index + width + 1] : null, error, 1 / 16);
-      }
-    }
-  }
-
-  return cells;
-}
-
-function keepMainSubjectComponents(cells, width, height) {
-  const visited = new Uint8Array(cells.length);
-  const components = [];
-
-  for (let start = 0; start < cells.length; start += 1) {
-    if (!cells[start] || visited[start]) {
-      continue;
-    }
-
-    const component = [];
-    const stack = [start];
-    visited[start] = 1;
-
-    while (stack.length) {
-      const index = stack.pop();
-      component.push(index);
-      const x = index % width;
-      const neighbors = [];
-
-      if (x > 0) {
-        neighbors.push(index - 1);
-      }
-      if (x < width - 1) {
-        neighbors.push(index + 1);
-      }
-      if (index >= width) {
-        neighbors.push(index - width);
-      }
-      if (index < cells.length - width) {
-        neighbors.push(index + width);
-      }
-
-      neighbors.forEach((neighbor) => {
-        if (cells[neighbor] && !visited[neighbor]) {
-          visited[neighbor] = 1;
-          stack.push(neighbor);
-        }
-      });
-    }
-
-    components.push(component);
-  }
-
-  if (!components.length) {
-    return cells;
-  }
-
-  components.sort((a, b) => b.length - a.length);
-  const largest = components[0].length;
-  const minimumSubjectPart = Math.max(10, Math.floor(largest * 0.08));
-  const keep = new Set();
-
-  components.forEach((component, index) => {
-    if (index < 2 || component.length >= minimumSubjectPart) {
-      component.forEach((cellIndex) => keep.add(cellIndex));
-    }
-  });
-
-  return cells.map((cell, index) => (keep.has(index) ? cell : null));
-}
-
-function buildPatternCells(image, width, height, maxColors, trim, mode, ditherMode) {
-  const sourceCanvas = document.createElement("canvas");
-  sourceCanvas.width = width;
-  sourceCanvas.height = height;
-  const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
-  sourceContext.imageSmoothingEnabled = true;
-  sourceContext.imageSmoothingQuality = "high";
-  drawImageSubjectAware(sourceContext, image, width, height);
-
-  const imageData = sourceContext.getImageData(0, 0, width, height).data;
-  const backgroundSamples = collectBackgroundSamples(imageData, width, height)
-    .map((sample) => adjustRgbForMode(sample, mode));
-  const pixelBuffer = [];
-  const rawCounts = new Map();
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4;
-      const alpha = imageData[index + 3];
-      const rgb = adjustRgbForMode([imageData[index], imageData[index + 1], imageData[index + 2]], mode);
-
-      if (alpha < 16 || shouldRemoveBackground(rgb, backgroundSamples, trim)) {
-        pixelBuffer.push(null);
-        continue;
-      }
-
-      const color = nearestPaletteColor(rgb);
-      pixelBuffer.push(rgb);
-      rawCounts.set(color.code, (rawCounts.get(color.code) || 0) + 1);
-    }
-  }
-
-  const selectedPalette = [...rawCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, maxColors)
-    .map(([code]) => beadPalette.find((color) => color.code === code));
-
-  if (!selectedPalette.length) {
-    return { cells: pixelBuffer.map(() => null), colors: [] };
-  }
-
-  const cells = mapPixelsToPalette(pixelBuffer, selectedPalette, width, height, ditherMode);
-
-  const cleanedCells = keepMainSubjectComponents(cells, width, height);
-  const finalCounts = new Map();
-  cleanedCells.forEach((color) => {
-    if (color) {
-      finalCounts.set(color.code, (finalCounts.get(color.code) || 0) + 1);
-    }
-  });
-
-  const colors = [...finalCounts.entries()]
-    .map(([code, count]) => ({ ...beadPalette.find((color) => color.code === code), count }))
-    .sort((a, b) => b.count - a.count);
-
-  return { cells: cleanedCells, colors };
-}
-
-function readableTextColor(hex) {
-  const [r, g, b] = hexToRgb(hex);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.58 ? "#1d1b1a" : "#ffffff";
-}
-
-function renderPatternCanvas(cells, colors, width, height) {
-  if (!patternCanvas) {
-    return;
-  }
-
-  const context = patternCanvas.getContext("2d");
-  const cellSize = Math.max(8, Math.min(18, Math.floor(680 / Math.max(width, height))));
-  patternCanvas.width = width * cellSize;
-  patternCanvas.height = height * cellSize;
-
-  context.fillStyle = "#fffdfa";
-  context.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
-
-  const colorNumbers = new Map(colors.map((color, index) => [color.code, String(index + 1)]));
-
-  cells.forEach((color, index) => {
-    const x = (index % width) * cellSize;
-    const y = Math.floor(index / width) * cellSize;
-
-    if (color) {
-      context.fillStyle = color.hex;
-      context.fillRect(x, y, cellSize, cellSize);
-      if (cellSize >= 12) {
-        context.fillStyle = readableTextColor(color.hex);
-        context.font = `700 ${Math.max(8, Math.floor(cellSize * 0.52))}px Inter, Arial, sans-serif`;
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillText(colorNumbers.get(color.code), x + cellSize / 2, y + cellSize / 2);
-      }
-    }
-
-    context.strokeStyle = "rgba(29, 27, 26, 0.18)";
-    context.lineWidth = 1;
-    context.strokeRect(x + 0.5, y + 0.5, cellSize, cellSize);
-  });
-}
-
-function renderPatternLegend(colors) {
-  if (!patternLegend) {
-    return;
-  }
-  patternLegend.innerHTML = "";
-  colors.forEach((color, index) => {
-    const item = document.createElement("div");
-    item.className = "legend-item";
-
-    const swatch = document.createElement("span");
-    swatch.className = "legend-swatch";
-    swatch.style.background = color.hex;
-
-    const name = document.createElement("span");
-    name.innerHTML = `<strong>${index + 1}. ${color.code}</strong> ${color.name}`;
-
-    const count = document.createElement("span");
-    count.textContent = String(color.count);
-
-    item.append(swatch, name, count);
-    patternLegend.appendChild(item);
-  });
-}
-
-function updatePatternStatus(beadCount) {
-  if (!patternStatus || !patternWidthInput) {
-    return;
-  }
-  patternStatus.textContent = t("pattern.statusReady")
-    .replace("{width}", patternWidthInput.value)
-    .replace("{height}", patternHeightInput.value)
-    .replace("{beads}", String(beadCount))
-    .replace("{colors}", String(patternState.colors.length));
-}
-
-function buildPatternCsv(colors) {
-  const rows = [["code", "name", "hex", "beads"]];
-  colors.forEach((color) => rows.push([color.code, color.name, color.hex, String(color.count)]));
-  return rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
-}
-
-function generatePattern() {
-  if (!patternState.image || !patternWidthInput) {
-    return;
-  }
-  patternStatus.textContent = t("pattern.statusWorking");
-
-  window.requestAnimationFrame(() => {
-    try {
-      const width = Number(patternWidthInput.value);
-      const height = Number(patternHeightInput.value);
-      const maxColors = Number(patternColorInput.value);
-      const trim = Number(patternTrimInput.value);
-      const mode = patternModeSelect?.value || "clean";
-      const ditherMode = patternDitherSelect?.value || "none";
-      const result = buildPatternCells(patternState.image, width, height, maxColors, trim, mode, ditherMode);
-      const beadCount = result.cells.filter(Boolean).length;
-
-      patternState.cells = result.cells;
-      patternState.colors = result.colors;
-      patternState.csv = buildPatternCsv(result.colors);
-
-      renderPatternCanvas(result.cells, result.colors, width, height);
-      renderPatternLegend(result.colors);
-      updatePatternStatus(beadCount);
-
-      patternDownload.href = patternCanvas.toDataURL("image/png");
-      setPatternButtons(Boolean(beadCount));
-    } catch (error) {
-      patternStatus.textContent = t("pattern.statusError");
-      setPatternButtons(false);
-    }
-  });
 }
 
 window.addEventListener("scroll", syncHeader, { passive: true });
@@ -1422,83 +642,6 @@ orderForm?.addEventListener("input", syncEstimate);
 
 languageButtons.forEach((button) => {
   button.addEventListener("click", () => applyLanguage(button.dataset.langButton));
-});
-
-[
-  patternWidthInput,
-  patternHeightInput,
-  patternColorInput,
-  patternTrimInput,
-  patternModeSelect,
-  patternDitherSelect
-].forEach((input) => {
-  input?.addEventListener("input", () => {
-    syncPatternControls();
-    if (patternState.image) {
-      generatePattern();
-    }
-  });
-});
-
-patternGenerateButton?.addEventListener("click", generatePattern);
-aiCutoutButton?.addEventListener("click", runAiCutout);
-
-patternPhotoInput?.addEventListener("change", () => {
-  const file = patternPhotoInput.files && patternPhotoInput.files[0];
-  if (!file) {
-    patternState.file = null;
-    patternState.image = null;
-    patternState.originalImage = null;
-    patternState.aiImage = null;
-    patternState.aiRunId += 1;
-    patternStatus.textContent = t("pattern.statusEmpty");
-    setAiStatus("pattern.aiIdle");
-    setAiBusy(false);
-    if (aiPreviewWrap) {
-      aiPreviewWrap.hidden = true;
-    }
-    resetPatternOutput();
-    return;
-  }
-
-  patternState.file = file;
-  patternState.aiImage = null;
-  patternState.aiRunId += 1;
-  resetPatternOutput();
-  setAiStatus("pattern.aiLoading");
-  setAiBusy(false);
-  if (aiPreviewWrap) {
-    aiPreviewWrap.hidden = true;
-  }
-
-  const imageUrl = URL.createObjectURL(file);
-  loadImageFromSource(imageUrl)
-    .then((image) => {
-      URL.revokeObjectURL(imageUrl);
-      patternState.originalImage = image;
-      patternState.image = image;
-      patternStatus.textContent = t("pattern.statusLoaded");
-      generatePattern();
-      runAiCutout();
-    })
-    .catch(() => {
-      URL.revokeObjectURL(imageUrl);
-      patternStatus.textContent = t("pattern.statusError");
-      setAiStatus("pattern.aiFallback");
-      setPatternButtons(false);
-    });
-});
-
-patternCsvButton?.addEventListener("click", () => {
-  if (!patternState.csv) {
-    return;
-  }
-  const blob = new Blob([patternState.csv], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "pixel-charm-colors.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
 });
 
 photoInput?.addEventListener("change", () => {
@@ -1602,3 +745,4 @@ syncHeader();
 applyLanguage(currentLanguage);
 setupAuthForms();
 setupAccountPage();
+
