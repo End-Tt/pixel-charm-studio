@@ -13,6 +13,8 @@ const patternWidthInput = document.querySelector("[data-pattern-width]");
 const patternHeightInput = document.querySelector("[data-pattern-height]");
 const patternColorInput = document.querySelector("[data-pattern-colors]");
 const patternTrimInput = document.querySelector("[data-pattern-trim]");
+const patternModeSelect = document.querySelector("[data-pattern-mode]");
+const patternDitherSelect = document.querySelector("[data-pattern-dither]");
 const patternWidthValue = document.querySelector("[data-pattern-width-value]");
 const patternHeightValue = document.querySelector("[data-pattern-height-value]");
 const patternColorValue = document.querySelector("[data-pattern-color-value]");
@@ -467,11 +469,18 @@ Object.assign(translations.de, {
 Object.assign(translations.en, {
   "pattern.eyebrow": "Instant pattern maker",
   "pattern.title": "Upload a photo and test the bead chart before ordering.",
-  "pattern.copy": "This browser demo keeps the photo on your device, isolates simple backgrounds, simplifies colors, and exports a buildable grid.",
+  "pattern.copy": "Browser-side ML keeps the photo on your device, extracts the subject, simplifies colors, and exports a buildable grid.",
   "pattern.upload": "Photo",
   "pattern.width": "Width",
   "pattern.height": "Height",
   "pattern.colors": "Max colors",
+  "pattern.mode": "ML style",
+  "pattern.modeClean": "Clean cartoon blocks",
+  "pattern.modeRealistic": "Realistic photo detail",
+  "pattern.dither": "Dithering",
+  "pattern.ditherNone": "None",
+  "pattern.ditherOrdered": "Ordered",
+  "pattern.ditherDiffusion": "Soft diffusion",
   "pattern.subject": "Subject cleanup",
   "pattern.generate": "Generate chart",
   "pattern.downloadPng": "Download PNG",
@@ -496,11 +505,18 @@ Object.assign(translations.en, {
 Object.assign(translations.zh, {
   "pattern.eyebrow": "即时图纸生成器",
   "pattern.title": "上传照片，先测试拼豆图纸效果再下单。",
-  "pattern.copy": "这个浏览器演示不会把照片上传到服务器，会尝试保留主体、简化颜色，并导出可制作的格子图。",
+  "pattern.copy": "浏览器端机器学习不会把照片上传到服务器，会提取主体、简化颜色，并导出可制作的格子图。",
   "pattern.upload": "照片",
   "pattern.width": "宽度",
   "pattern.height": "高度",
   "pattern.colors": "最多颜色",
+  "pattern.mode": "机器学习风格",
+  "pattern.modeClean": "干净卡通块面",
+  "pattern.modeRealistic": "真实照片细节",
+  "pattern.dither": "抖动算法",
+  "pattern.ditherNone": "不使用",
+  "pattern.ditherOrdered": "规则抖动",
+  "pattern.ditherDiffusion": "柔和误差扩散",
   "pattern.subject": "主体清理",
   "pattern.generate": "生成图纸",
   "pattern.downloadPng": "下载 PNG",
@@ -525,11 +541,18 @@ Object.assign(translations.zh, {
 Object.assign(translations.de, {
   "pattern.eyebrow": "Sofortiger Vorlagen-Generator",
   "pattern.title": "Foto hochladen und die Perlenvorlage vor der Bestellung testen.",
-  "pattern.copy": "Diese Browser-Demo behält das Foto auf deinem Gerät, entfernt einfache Hintergründe, reduziert Farben und exportiert ein baubares Raster.",
+  "pattern.copy": "Browserseitiges ML behält das Foto auf deinem Gerät, stellt das Motiv frei, reduziert Farben und exportiert ein baubares Raster.",
   "pattern.upload": "Foto",
   "pattern.width": "Breite",
   "pattern.height": "Höhe",
   "pattern.colors": "Max. Farben",
+  "pattern.mode": "ML-Stil",
+  "pattern.modeClean": "Klare Cartoon-Blöcke",
+  "pattern.modeRealistic": "Realistische Fotodetails",
+  "pattern.dither": "Dithering",
+  "pattern.ditherNone": "Aus",
+  "pattern.ditherOrdered": "Geordnet",
+  "pattern.ditherDiffusion": "Weiche Diffusion",
   "pattern.subject": "Motiv bereinigen",
   "pattern.generate": "Vorlage erstellen",
   "pattern.downloadPng": "PNG herunterladen",
@@ -586,7 +609,10 @@ const beadPalette = [
   { code: "F30", name: "Coral", hex: "#eb7663" },
   { code: "A31", name: "Aqua", hex: "#4ec6d3" },
   { code: "L32", name: "Lime", hex: "#b8d957" }
-].map((color) => ({ ...color, rgb: hexToRgb(color.hex) }));
+].map((color) => {
+  const rgb = hexToRgb(color.hex);
+  return { ...color, rgb, lab: rgbToLab(rgb) };
+});
 
 const patternState = {
   file: null,
@@ -717,9 +743,115 @@ function colorDistance(a, b) {
   return dr * dr + dg * dg + db * db;
 }
 
+function clamp(value, min = 0, max = 255) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function pivotRgb(value) {
+  const normalized = value / 255;
+  return normalized <= 0.04045
+    ? normalized / 12.92
+    : ((normalized + 0.055) / 1.055) ** 2.4;
+}
+
+function pivotXyz(value) {
+  return value > 0.008856 ? Math.cbrt(value) : (7.787 * value) + (16 / 116);
+}
+
+function rgbToLab(rgb) {
+  const r = pivotRgb(rgb[0]);
+  const g = pivotRgb(rgb[1]);
+  const b = pivotRgb(rgb[2]);
+
+  const x = ((r * 0.4124564) + (g * 0.3575761) + (b * 0.1804375)) / 0.95047;
+  const y = (r * 0.2126729) + (g * 0.7151522) + (b * 0.072175);
+  const z = ((r * 0.0193339) + (g * 0.119192) + (b * 0.9503041)) / 1.08883;
+
+  const fx = pivotXyz(x);
+  const fy = pivotXyz(y);
+  const fz = pivotXyz(z);
+
+  return [
+    (116 * fy) - 16,
+    500 * (fx - fy),
+    200 * (fy - fz)
+  ];
+}
+
+function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+function radiansToDegrees(radians) {
+  return radians * (180 / Math.PI);
+}
+
+function ciede2000(labA, labB) {
+  const [l1, a1, b1] = labA;
+  const [l2, a2, b2] = labB;
+  const kL = 1;
+  const kC = 1;
+  const kH = 1;
+  const c1 = Math.hypot(a1, b1);
+  const c2 = Math.hypot(a2, b2);
+  const cBar = (c1 + c2) / 2;
+  const cBar7 = cBar ** 7;
+  const g = 0.5 * (1 - Math.sqrt(cBar7 / (cBar7 + (25 ** 7))));
+  const a1Prime = (1 + g) * a1;
+  const a2Prime = (1 + g) * a2;
+  const c1Prime = Math.hypot(a1Prime, b1);
+  const c2Prime = Math.hypot(a2Prime, b2);
+  const h1Prime = (radiansToDegrees(Math.atan2(b1, a1Prime)) + 360) % 360;
+  const h2Prime = (radiansToDegrees(Math.atan2(b2, a2Prime)) + 360) % 360;
+  const deltaLPrime = l2 - l1;
+  const deltaCPrime = c2Prime - c1Prime;
+  let deltahPrime = h2Prime - h1Prime;
+
+  if (c1Prime * c2Prime === 0) {
+    deltahPrime = 0;
+  } else if (deltahPrime > 180) {
+    deltahPrime -= 360;
+  } else if (deltahPrime < -180) {
+    deltahPrime += 360;
+  }
+
+  const deltaHPrime = 2 * Math.sqrt(c1Prime * c2Prime) * Math.sin(degreesToRadians(deltahPrime / 2));
+  const lBarPrime = (l1 + l2) / 2;
+  const cBarPrime = (c1Prime + c2Prime) / 2;
+  let hBarPrime = h1Prime + h2Prime;
+
+  if (c1Prime * c2Prime === 0) {
+    hBarPrime = h1Prime + h2Prime;
+  } else if (Math.abs(h1Prime - h2Prime) > 180) {
+    hBarPrime = h1Prime + h2Prime < 360 ? (h1Prime + h2Prime + 360) / 2 : (h1Prime + h2Prime - 360) / 2;
+  } else {
+    hBarPrime = (h1Prime + h2Prime) / 2;
+  }
+
+  const tValue = 1
+    - (0.17 * Math.cos(degreesToRadians(hBarPrime - 30)))
+    + (0.24 * Math.cos(degreesToRadians(2 * hBarPrime)))
+    + (0.32 * Math.cos(degreesToRadians((3 * hBarPrime) + 6)))
+    - (0.2 * Math.cos(degreesToRadians((4 * hBarPrime) - 63)));
+  const deltaTheta = 30 * Math.exp(-(((hBarPrime - 275) / 25) ** 2));
+  const rC = 2 * Math.sqrt((cBarPrime ** 7) / ((cBarPrime ** 7) + (25 ** 7)));
+  const sL = 1 + ((0.015 * ((lBarPrime - 50) ** 2)) / Math.sqrt(20 + ((lBarPrime - 50) ** 2)));
+  const sC = 1 + (0.045 * cBarPrime);
+  const sH = 1 + (0.015 * cBarPrime * tValue);
+  const rT = -Math.sin(degreesToRadians(2 * deltaTheta)) * rC;
+
+  return Math.sqrt(
+    ((deltaLPrime / (kL * sL)) ** 2)
+    + ((deltaCPrime / (kC * sC)) ** 2)
+    + ((deltaHPrime / (kH * sH)) ** 2)
+    + (rT * (deltaCPrime / (kC * sC)) * (deltaHPrime / (kH * sH)))
+  );
+}
+
 function nearestPaletteColor(rgb, palette = beadPalette) {
+  const lab = rgbToLab(rgb);
   return palette.reduce((best, color) => {
-    const score = colorDistance(rgb, color.rgb);
+    const score = ciede2000(lab, color.lab);
     return score < best.score ? { color, score } : best;
   }, { color: palette[0], score: Infinity }).color;
 }
@@ -976,6 +1108,75 @@ function shouldRemoveBackground(rgb, samples, threshold) {
   return samples.some((sample) => colorDistance(rgb, sample) < thresholdScore);
 }
 
+function adjustRgbForMode(rgb, mode) {
+  const contrast = mode === "realistic" ? 1.06 : 1.22;
+  const saturation = mode === "realistic" ? 1.04 : 1.2;
+  const contrasted = rgb.map((channel) => clamp(((channel - 128) * contrast) + 128));
+  const gray = (contrasted[0] * 0.299) + (contrasted[1] * 0.587) + (contrasted[2] * 0.114);
+  return contrasted.map((channel) => clamp(gray + ((channel - gray) * saturation)));
+}
+
+function bayerOffset(x, y) {
+  const bayer = [
+    [0, 8, 2, 10],
+    [12, 4, 14, 6],
+    [3, 11, 1, 9],
+    [15, 7, 13, 5]
+  ];
+  return ((bayer[y % 4][x % 4] / 16) - 0.5) * 34;
+}
+
+function addError(target, error, factor) {
+  if (!target) {
+    return;
+  }
+  target[0] = clamp(target[0] + (error[0] * factor));
+  target[1] = clamp(target[1] + (error[1] * factor));
+  target[2] = clamp(target[2] + (error[2] * factor));
+}
+
+function mapPixelsToPalette(pixelBuffer, selectedPalette, width, height, ditherMode) {
+  const working = pixelBuffer.map((pixel) => (pixel ? [...pixel] : null));
+  const cells = new Array(working.length).fill(null);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width) + x;
+      const pixel = working[index];
+      if (!pixel) {
+        continue;
+      }
+
+      let mappedRgb = pixel;
+      if (ditherMode === "ordered") {
+        const offset = bayerOffset(x, y);
+        mappedRgb = [
+          clamp(pixel[0] + offset),
+          clamp(pixel[1] + offset),
+          clamp(pixel[2] + offset)
+        ];
+      }
+
+      const color = nearestPaletteColor(mappedRgb, selectedPalette);
+      cells[index] = color;
+
+      if (ditherMode === "diffusion") {
+        const error = [
+          pixel[0] - color.rgb[0],
+          pixel[1] - color.rgb[1],
+          pixel[2] - color.rgb[2]
+        ];
+        addError(x < width - 1 ? working[index + 1] : null, error, 7 / 16);
+        addError(x > 0 ? working[index + width - 1] : null, error, 3 / 16);
+        addError(working[index + width], error, 5 / 16);
+        addError(x < width - 1 ? working[index + width + 1] : null, error, 1 / 16);
+      }
+    }
+  }
+
+  return cells;
+}
+
 function keepMainSubjectComponents(cells, width, height) {
   const visited = new Uint8Array(cells.length);
   const components = [];
@@ -1037,7 +1238,7 @@ function keepMainSubjectComponents(cells, width, height) {
   return cells.map((cell, index) => (keep.has(index) ? cell : null));
 }
 
-function buildPatternCells(image, width, height, maxColors, trim) {
+function buildPatternCells(image, width, height, maxColors, trim, mode, ditherMode) {
   const sourceCanvas = document.createElement("canvas");
   sourceCanvas.width = width;
   sourceCanvas.height = height;
@@ -1047,23 +1248,24 @@ function buildPatternCells(image, width, height, maxColors, trim) {
   drawImageSubjectAware(sourceContext, image, width, height);
 
   const imageData = sourceContext.getImageData(0, 0, width, height).data;
-  const backgroundSamples = collectBackgroundSamples(imageData, width, height);
-  const rawCells = [];
+  const backgroundSamples = collectBackgroundSamples(imageData, width, height)
+    .map((sample) => adjustRgbForMode(sample, mode));
+  const pixelBuffer = [];
   const rawCounts = new Map();
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       const index = (y * width + x) * 4;
       const alpha = imageData[index + 3];
-      const rgb = [imageData[index], imageData[index + 1], imageData[index + 2]];
+      const rgb = adjustRgbForMode([imageData[index], imageData[index + 1], imageData[index + 2]], mode);
 
       if (alpha < 16 || shouldRemoveBackground(rgb, backgroundSamples, trim)) {
-        rawCells.push(null);
+        pixelBuffer.push(null);
         continue;
       }
 
       const color = nearestPaletteColor(rgb);
-      rawCells.push(color);
+      pixelBuffer.push(rgb);
       rawCounts.set(color.code, (rawCounts.get(color.code) || 0) + 1);
     }
   }
@@ -1073,15 +1275,11 @@ function buildPatternCells(image, width, height, maxColors, trim) {
     .slice(0, maxColors)
     .map(([code]) => beadPalette.find((color) => color.code === code));
 
-  const cells = rawCells.map((color) => {
-    if (!color) {
-      return null;
-    }
-    const finalColor = selectedPalette.some((item) => item.code === color.code)
-      ? color
-      : nearestPaletteColor(color.rgb, selectedPalette);
-    return finalColor;
-  });
+  if (!selectedPalette.length) {
+    return { cells: pixelBuffer.map(() => null), colors: [] };
+  }
+
+  const cells = mapPixelsToPalette(pixelBuffer, selectedPalette, width, height, ditherMode);
 
   const cleanedCells = keepMainSubjectComponents(cells, width, height);
   const finalCounts = new Map();
@@ -1194,7 +1392,9 @@ function generatePattern() {
       const height = Number(patternHeightInput.value);
       const maxColors = Number(patternColorInput.value);
       const trim = Number(patternTrimInput.value);
-      const result = buildPatternCells(patternState.image, width, height, maxColors, trim);
+      const mode = patternModeSelect?.value || "clean";
+      const ditherMode = patternDitherSelect?.value || "none";
+      const result = buildPatternCells(patternState.image, width, height, maxColors, trim, mode, ditherMode);
       const beadCount = result.cells.filter(Boolean).length;
 
       patternState.cells = result.cells;
@@ -1228,7 +1428,9 @@ languageButtons.forEach((button) => {
   patternWidthInput,
   patternHeightInput,
   patternColorInput,
-  patternTrimInput
+  patternTrimInput,
+  patternModeSelect,
+  patternDitherSelect
 ].forEach((input) => {
   input?.addEventListener("input", () => {
     syncPatternControls();

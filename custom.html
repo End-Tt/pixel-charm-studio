@@ -42,7 +42,7 @@
         <div class="tool-heading">
           <p class="eyebrow" data-i18n="pattern.eyebrow">Instant pattern maker</p>
           <h2 data-i18n="pattern.title">Upload a photo and test the bead chart before ordering.</h2>
-          <p data-i18n="pattern.copy">This browser demo keeps the photo on your device, isolates simple backgrounds, simplifies colors, and exports a buildable grid.</p>
+          <p data-i18n="pattern.copy">Browser-side ML keeps the photo on your device, extracts the subject, simplifies colors, and exports a buildable grid.</p>
         </div>
 
         <div class="pattern-tool">
@@ -75,6 +75,21 @@
               <label>
                 <span><span data-i18n="pattern.colors">Max colors</span> <strong data-pattern-color-value>16</strong></span>
                 <input type="range" min="6" max="28" value="16" data-pattern-colors>
+              </label>
+              <label>
+                <span data-i18n="pattern.mode">ML style</span>
+                <select data-pattern-mode>
+                  <option value="clean" data-i18n="pattern.modeClean">Clean cartoon blocks</option>
+                  <option value="realistic" data-i18n="pattern.modeRealistic">Realistic photo detail</option>
+                </select>
+              </label>
+              <label>
+                <span data-i18n="pattern.dither">Dithering</span>
+                <select data-pattern-dither>
+                  <option value="none" data-i18n="pattern.ditherNone">None</option>
+                  <option value="ordered" data-i18n="pattern.ditherOrdered">Ordered</option>
+                  <option value="diffusion" data-i18n="pattern.ditherDiffusion">Soft diffusion</option>
+                </select>
               </label>
               <label>
                 <span><span data-i18n="pattern.subject">Subject cleanup</span> <strong data-pattern-trim-value>70</strong></span>
