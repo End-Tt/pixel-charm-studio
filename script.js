@@ -8,6 +8,21 @@ const orderForm = document.querySelector("[data-order-form]");
 const photoInput = document.querySelector("[data-photo]");
 const preview = document.querySelector("[data-preview]");
 const languageButtons = document.querySelectorAll("[data-lang-button]");
+const patternPhotoInput = document.querySelector("[data-pattern-photo]");
+const patternWidthInput = document.querySelector("[data-pattern-width]");
+const patternHeightInput = document.querySelector("[data-pattern-height]");
+const patternColorInput = document.querySelector("[data-pattern-colors]");
+const patternTrimInput = document.querySelector("[data-pattern-trim]");
+const patternWidthValue = document.querySelector("[data-pattern-width-value]");
+const patternHeightValue = document.querySelector("[data-pattern-height-value]");
+const patternColorValue = document.querySelector("[data-pattern-color-value]");
+const patternTrimValue = document.querySelector("[data-pattern-trim-value]");
+const patternGenerateButton = document.querySelector("[data-pattern-generate]");
+const patternCanvas = document.querySelector("[data-pattern-canvas]");
+const patternStatus = document.querySelector("[data-pattern-status]");
+const patternLegend = document.querySelector("[data-pattern-legend]");
+const patternDownload = document.querySelector("[data-pattern-download]");
+const patternCsvButton = document.querySelector("[data-pattern-csv]");
 
 const translations = {
   en: {
@@ -445,7 +460,112 @@ Object.assign(translations.de, {
   "auth.registerError": "Für diese E-Mail gibt es bereits ein Konto."
 });
 
+Object.assign(translations.en, {
+  "pattern.eyebrow": "Instant pattern maker",
+  "pattern.title": "Upload a photo and test the bead chart before ordering.",
+  "pattern.copy": "This browser demo keeps the photo on your device, isolates simple backgrounds, simplifies colors, and exports a buildable grid.",
+  "pattern.upload": "Photo",
+  "pattern.width": "Width",
+  "pattern.height": "Height",
+  "pattern.colors": "Max colors",
+  "pattern.subject": "Subject cleanup",
+  "pattern.generate": "Generate chart",
+  "pattern.downloadPng": "Download PNG",
+  "pattern.downloadCsv": "Download color list",
+  "pattern.note": "Best results: one clear subject, daylight, plain background, no tiny details.",
+  "pattern.preview": "Generated chart",
+  "pattern.statusEmpty": "Upload a photo to begin",
+  "pattern.statusLoaded": "Photo loaded. Generate a chart.",
+  "pattern.statusWorking": "Building bead chart...",
+  "pattern.statusReady": "{width}x{height} grid · {beads} beads · {colors} colors",
+  "pattern.statusError": "This image could not be processed. Try another JPG, PNG, or WebP."
+});
+
+Object.assign(translations.zh, {
+  "pattern.eyebrow": "即时图纸生成器",
+  "pattern.title": "上传照片，先测试拼豆图纸效果再下单。",
+  "pattern.copy": "这个浏览器演示不会把照片上传到服务器，会尝试保留主体、简化颜色，并导出可制作的格子图。",
+  "pattern.upload": "照片",
+  "pattern.width": "宽度",
+  "pattern.height": "高度",
+  "pattern.colors": "最多颜色",
+  "pattern.subject": "主体清理",
+  "pattern.generate": "生成图纸",
+  "pattern.downloadPng": "下载 PNG",
+  "pattern.downloadCsv": "下载颜色清单",
+  "pattern.note": "效果最好：单一清晰主体、自然光、简单背景、细节不要太碎。",
+  "pattern.preview": "生成图纸",
+  "pattern.statusEmpty": "上传照片后开始",
+  "pattern.statusLoaded": "照片已载入，可以生成图纸。",
+  "pattern.statusWorking": "正在生成拼豆图纸...",
+  "pattern.statusReady": "{width}x{height} 格 · {beads} 颗豆 · {colors} 色",
+  "pattern.statusError": "这张图无法处理，请换一张 JPG、PNG 或 WebP。"
+});
+
+Object.assign(translations.de, {
+  "pattern.eyebrow": "Sofortiger Vorlagen-Generator",
+  "pattern.title": "Foto hochladen und die Perlenvorlage vor der Bestellung testen.",
+  "pattern.copy": "Diese Browser-Demo behält das Foto auf deinem Gerät, entfernt einfache Hintergründe, reduziert Farben und exportiert ein baubares Raster.",
+  "pattern.upload": "Foto",
+  "pattern.width": "Breite",
+  "pattern.height": "Höhe",
+  "pattern.colors": "Max. Farben",
+  "pattern.subject": "Motiv bereinigen",
+  "pattern.generate": "Vorlage erstellen",
+  "pattern.downloadPng": "PNG herunterladen",
+  "pattern.downloadCsv": "Farbliste herunterladen",
+  "pattern.note": "Beste Ergebnisse: ein klares Motiv, Tageslicht, ruhiger Hintergrund, keine winzigen Details.",
+  "pattern.preview": "Generierte Vorlage",
+  "pattern.statusEmpty": "Lade ein Foto hoch",
+  "pattern.statusLoaded": "Foto geladen. Vorlage kann erstellt werden.",
+  "pattern.statusWorking": "Perlenvorlage wird erstellt...",
+  "pattern.statusReady": "{width}x{height} Raster · {beads} Perlen · {colors} Farben",
+  "pattern.statusError": "Dieses Bild konnte nicht verarbeitet werden. Versuche JPG, PNG oder WebP."
+});
+
 let currentLanguage = localStorage.getItem("pixelCharmLanguage") || "en";
+
+const beadPalette = [
+  { code: "W01", name: "White", hex: "#f8f5ec" },
+  { code: "C02", name: "Cream", hex: "#f4dfb1" },
+  { code: "Y03", name: "Yellow", hex: "#ffd84a" },
+  { code: "Y04", name: "Gold", hex: "#f0aa25" },
+  { code: "O05", name: "Orange", hex: "#f47a31" },
+  { code: "R06", name: "Tomato", hex: "#e64535" },
+  { code: "R07", name: "Red", hex: "#bf2430" },
+  { code: "P08", name: "Blush", hex: "#f7a7b8" },
+  { code: "P09", name: "Pink", hex: "#ec5e9c" },
+  { code: "P10", name: "Magenta", hex: "#b53a87" },
+  { code: "V11", name: "Lavender", hex: "#bda5d8" },
+  { code: "V12", name: "Purple", hex: "#6d4b9a" },
+  { code: "B13", name: "Sky", hex: "#8fc7e8" },
+  { code: "B14", name: "Blue", hex: "#2d7fbd" },
+  { code: "B15", name: "Navy", hex: "#1f3d68" },
+  { code: "G16", name: "Mint", hex: "#9ad8c0" },
+  { code: "G17", name: "Green", hex: "#41a866" },
+  { code: "G18", name: "Olive", hex: "#6c8c45" },
+  { code: "T19", name: "Teal", hex: "#168f8b" },
+  { code: "N20", name: "Tan", hex: "#d7a676" },
+  { code: "N21", name: "Caramel", hex: "#a96d3d" },
+  { code: "N22", name: "Brown", hex: "#6b442e" },
+  { code: "N23", name: "Dark brown", hex: "#3b2922" },
+  { code: "S24", name: "Light gray", hex: "#d9d7d0" },
+  { code: "S25", name: "Gray", hex: "#8e8d88" },
+  { code: "S26", name: "Charcoal", hex: "#45484c" },
+  { code: "K27", name: "Black", hex: "#171717" },
+  { code: "F28", name: "Peach", hex: "#f0b48f" },
+  { code: "F29", name: "Sand", hex: "#e2c795" },
+  { code: "F30", name: "Coral", hex: "#eb7663" },
+  { code: "A31", name: "Aqua", hex: "#4ec6d3" },
+  { code: "L32", name: "Lime", hex: "#b8d957" }
+].map((color) => ({ ...color, rgb: hexToRgb(color.hex) }));
+
+const patternState = {
+  image: null,
+  cells: [],
+  colors: [],
+  csv: ""
+};
 
 function syncHeader() {
   if (header && !document.body.classList.contains("inner-page")) {
@@ -534,6 +654,263 @@ function applyLanguage(language) {
   translateOptions(subjectSelect, optionTranslations.subjects);
   translateOptions(sizeSelect, optionTranslations.sizes);
   syncEstimate();
+  syncPatternControls();
+  if (patternState.colors.length) {
+    renderPatternLegend(patternState.colors);
+    updatePatternStatus(patternState.cells.filter(Boolean).length);
+  }
+}
+
+function t(key) {
+  return translations[currentLanguage][key] || translations.en[key] || key;
+}
+
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  return [
+    parseInt(value.slice(0, 2), 16),
+    parseInt(value.slice(2, 4), 16),
+    parseInt(value.slice(4, 6), 16)
+  ];
+}
+
+function colorDistance(a, b) {
+  const dr = a[0] - b[0];
+  const dg = a[1] - b[1];
+  const db = a[2] - b[2];
+  return dr * dr + dg * dg + db * db;
+}
+
+function nearestPaletteColor(rgb, palette = beadPalette) {
+  return palette.reduce((best, color) => {
+    const score = colorDistance(rgb, color.rgb);
+    return score < best.score ? { color, score } : best;
+  }, { color: palette[0], score: Infinity }).color;
+}
+
+function syncPatternControls() {
+  if (!patternWidthInput) {
+    return;
+  }
+  patternWidthValue.textContent = patternWidthInput.value;
+  patternHeightValue.textContent = patternHeightInput.value;
+  patternColorValue.textContent = patternColorInput.value;
+  patternTrimValue.textContent = patternTrimInput.value;
+}
+
+function setPatternButtons(isReady) {
+  if (patternDownload) {
+    patternDownload.classList.toggle("is-disabled", !isReady);
+    patternDownload.setAttribute("aria-disabled", String(!isReady));
+  }
+  if (patternCsvButton) {
+    patternCsvButton.disabled = !isReady;
+  }
+}
+
+function drawImageCover(context, image, width, height) {
+  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+  const sourceWidth = width / scale;
+  const sourceHeight = height / scale;
+  const sourceX = (image.naturalWidth - sourceWidth) / 2;
+  const sourceY = (image.naturalHeight - sourceHeight) / 2;
+  context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
+}
+
+function collectBackgroundSamples(imageData, width, height) {
+  const samples = [];
+  const points = [
+    [0, 0],
+    [width - 1, 0],
+    [0, height - 1],
+    [width - 1, height - 1]
+  ];
+
+  points.forEach(([x, y]) => {
+    const index = (y * width + x) * 4;
+    samples.push([imageData[index], imageData[index + 1], imageData[index + 2]]);
+  });
+
+  return samples;
+}
+
+function shouldRemoveBackground(rgb, samples, threshold) {
+  if (threshold <= 0) {
+    return false;
+  }
+  const thresholdScore = threshold * threshold;
+  return samples.some((sample) => colorDistance(rgb, sample) < thresholdScore);
+}
+
+function buildPatternCells(image, width, height, maxColors, trim) {
+  const sourceCanvas = document.createElement("canvas");
+  sourceCanvas.width = width;
+  sourceCanvas.height = height;
+  const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
+  sourceContext.imageSmoothingEnabled = true;
+  sourceContext.imageSmoothingQuality = "high";
+  drawImageCover(sourceContext, image, width, height);
+
+  const imageData = sourceContext.getImageData(0, 0, width, height).data;
+  const backgroundSamples = collectBackgroundSamples(imageData, width, height);
+  const rawCells = [];
+  const rawCounts = new Map();
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const alpha = imageData[index + 3];
+      const rgb = [imageData[index], imageData[index + 1], imageData[index + 2]];
+
+      if (alpha < 16 || shouldRemoveBackground(rgb, backgroundSamples, trim)) {
+        rawCells.push(null);
+        continue;
+      }
+
+      const color = nearestPaletteColor(rgb);
+      rawCells.push(color);
+      rawCounts.set(color.code, (rawCounts.get(color.code) || 0) + 1);
+    }
+  }
+
+  const selectedPalette = [...rawCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, maxColors)
+    .map(([code]) => beadPalette.find((color) => color.code === code));
+
+  const finalCounts = new Map();
+  const cells = rawCells.map((color) => {
+    if (!color) {
+      return null;
+    }
+    const finalColor = selectedPalette.some((item) => item.code === color.code)
+      ? color
+      : nearestPaletteColor(color.rgb, selectedPalette);
+    finalCounts.set(finalColor.code, (finalCounts.get(finalColor.code) || 0) + 1);
+    return finalColor;
+  });
+
+  const colors = [...finalCounts.entries()]
+    .map(([code, count]) => ({ ...beadPalette.find((color) => color.code === code), count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { cells, colors };
+}
+
+function readableTextColor(hex) {
+  const [r, g, b] = hexToRgb(hex);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.58 ? "#1d1b1a" : "#ffffff";
+}
+
+function renderPatternCanvas(cells, colors, width, height) {
+  if (!patternCanvas) {
+    return;
+  }
+
+  const context = patternCanvas.getContext("2d");
+  const cellSize = Math.max(8, Math.min(18, Math.floor(680 / Math.max(width, height))));
+  patternCanvas.width = width * cellSize;
+  patternCanvas.height = height * cellSize;
+
+  context.fillStyle = "#fffdfa";
+  context.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+
+  const colorNumbers = new Map(colors.map((color, index) => [color.code, String(index + 1)]));
+
+  cells.forEach((color, index) => {
+    const x = (index % width) * cellSize;
+    const y = Math.floor(index / width) * cellSize;
+
+    if (color) {
+      context.fillStyle = color.hex;
+      context.fillRect(x, y, cellSize, cellSize);
+      if (cellSize >= 12) {
+        context.fillStyle = readableTextColor(color.hex);
+        context.font = `700 ${Math.max(8, Math.floor(cellSize * 0.52))}px Inter, Arial, sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(colorNumbers.get(color.code), x + cellSize / 2, y + cellSize / 2);
+      }
+    }
+
+    context.strokeStyle = "rgba(29, 27, 26, 0.18)";
+    context.lineWidth = 1;
+    context.strokeRect(x + 0.5, y + 0.5, cellSize, cellSize);
+  });
+}
+
+function renderPatternLegend(colors) {
+  if (!patternLegend) {
+    return;
+  }
+  patternLegend.innerHTML = "";
+  colors.forEach((color, index) => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.background = color.hex;
+
+    const name = document.createElement("span");
+    name.innerHTML = `<strong>${index + 1}. ${color.code}</strong> ${color.name}`;
+
+    const count = document.createElement("span");
+    count.textContent = String(color.count);
+
+    item.append(swatch, name, count);
+    patternLegend.appendChild(item);
+  });
+}
+
+function updatePatternStatus(beadCount) {
+  if (!patternStatus || !patternWidthInput) {
+    return;
+  }
+  patternStatus.textContent = t("pattern.statusReady")
+    .replace("{width}", patternWidthInput.value)
+    .replace("{height}", patternHeightInput.value)
+    .replace("{beads}", String(beadCount))
+    .replace("{colors}", String(patternState.colors.length));
+}
+
+function buildPatternCsv(colors) {
+  const rows = [["code", "name", "hex", "beads"]];
+  colors.forEach((color) => rows.push([color.code, color.name, color.hex, String(color.count)]));
+  return rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
+}
+
+function generatePattern() {
+  if (!patternState.image || !patternWidthInput) {
+    return;
+  }
+  patternStatus.textContent = t("pattern.statusWorking");
+
+  window.requestAnimationFrame(() => {
+    try {
+      const width = Number(patternWidthInput.value);
+      const height = Number(patternHeightInput.value);
+      const maxColors = Number(patternColorInput.value);
+      const trim = Number(patternTrimInput.value);
+      const result = buildPatternCells(patternState.image, width, height, maxColors, trim);
+      const beadCount = result.cells.filter(Boolean).length;
+
+      patternState.cells = result.cells;
+      patternState.colors = result.colors;
+      patternState.csv = buildPatternCsv(result.colors);
+
+      renderPatternCanvas(result.cells, result.colors, width, height);
+      renderPatternLegend(result.colors);
+      updatePatternStatus(beadCount);
+
+      patternDownload.href = patternCanvas.toDataURL("image/png");
+      setPatternButtons(Boolean(beadCount));
+    } catch (error) {
+      patternStatus.textContent = t("pattern.statusError");
+      setPatternButtons(false);
+    }
+  });
 }
 
 window.addEventListener("scroll", syncHeader, { passive: true });
@@ -544,6 +921,61 @@ orderForm?.addEventListener("input", syncEstimate);
 
 languageButtons.forEach((button) => {
   button.addEventListener("click", () => applyLanguage(button.dataset.langButton));
+});
+
+[
+  patternWidthInput,
+  patternHeightInput,
+  patternColorInput,
+  patternTrimInput
+].forEach((input) => {
+  input?.addEventListener("input", () => {
+    syncPatternControls();
+    if (patternState.image) {
+      generatePattern();
+    }
+  });
+});
+
+patternGenerateButton?.addEventListener("click", generatePattern);
+
+patternPhotoInput?.addEventListener("change", () => {
+  const file = patternPhotoInput.files && patternPhotoInput.files[0];
+  if (!file) {
+    patternState.image = null;
+    patternStatus.textContent = t("pattern.statusEmpty");
+    patternLegend.innerHTML = "";
+    setPatternButtons(false);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    const image = new Image();
+    image.addEventListener("load", () => {
+      patternState.image = image;
+      patternStatus.textContent = t("pattern.statusLoaded");
+      generatePattern();
+    });
+    image.addEventListener("error", () => {
+      patternStatus.textContent = t("pattern.statusError");
+      setPatternButtons(false);
+    });
+    image.src = reader.result;
+  });
+  reader.readAsDataURL(file);
+});
+
+patternCsvButton?.addEventListener("click", () => {
+  if (!patternState.csv) {
+    return;
+  }
+  const blob = new Blob([patternState.csv], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "pixel-charm-colors.csv";
+  link.click();
+  URL.revokeObjectURL(link.href);
 });
 
 photoInput?.addEventListener("change", () => {
