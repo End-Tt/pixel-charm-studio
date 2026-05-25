@@ -23,6 +23,10 @@ const patternStatus = document.querySelector("[data-pattern-status]");
 const patternLegend = document.querySelector("[data-pattern-legend]");
 const patternDownload = document.querySelector("[data-pattern-download]");
 const patternCsvButton = document.querySelector("[data-pattern-csv]");
+const aiCutoutButton = document.querySelector("[data-ai-cutout]");
+const aiStatus = document.querySelector("[data-ai-status]");
+const aiPreviewWrap = document.querySelector("[data-ai-preview-wrap]");
+const aiPreviewImage = document.querySelector("[data-ai-preview]");
 
 const translations = {
   en: {
@@ -478,7 +482,15 @@ Object.assign(translations.en, {
   "pattern.statusLoaded": "Photo loaded. Generate a chart.",
   "pattern.statusWorking": "Building bead chart...",
   "pattern.statusReady": "{width}x{height} grid · {beads} beads · {colors} colors",
-  "pattern.statusError": "This image could not be processed. Try another JPG, PNG, or WebP."
+  "pattern.statusError": "This image could not be processed. Try another JPG, PNG, or WebP.",
+  "pattern.aiTitle": "AI subject extraction",
+  "pattern.aiIdle": "Runs automatically after upload",
+  "pattern.aiButton": "Run AI cleanup",
+  "pattern.aiLoading": "Loading AI model...",
+  "pattern.aiProgress": "Loading AI model {percent}%",
+  "pattern.aiRunning": "Removing background and keeping the subject...",
+  "pattern.aiReady": "AI cutout ready. Chart rebuilt from subject only.",
+  "pattern.aiFallback": "AI cleanup failed. Using smart non-AI cleanup."
 });
 
 Object.assign(translations.zh, {
@@ -499,7 +511,15 @@ Object.assign(translations.zh, {
   "pattern.statusLoaded": "照片已载入，可以生成图纸。",
   "pattern.statusWorking": "正在生成拼豆图纸...",
   "pattern.statusReady": "{width}x{height} 格 · {beads} 颗豆 · {colors} 色",
-  "pattern.statusError": "这张图无法处理，请换一张 JPG、PNG 或 WebP。"
+  "pattern.statusError": "这张图无法处理，请换一张 JPG、PNG 或 WebP。",
+  "pattern.aiTitle": "AI 主体提取",
+  "pattern.aiIdle": "上传后自动运行",
+  "pattern.aiButton": "重新 AI 清理",
+  "pattern.aiLoading": "正在加载 AI 模型...",
+  "pattern.aiProgress": "AI 模型加载 {percent}%",
+  "pattern.aiRunning": "正在抠图并保留主体...",
+  "pattern.aiReady": "AI 抠图完成，已用主体重新生成图纸。",
+  "pattern.aiFallback": "AI 清理失败，已使用智能非 AI 清理。"
 });
 
 Object.assign(translations.de, {
@@ -520,7 +540,15 @@ Object.assign(translations.de, {
   "pattern.statusLoaded": "Foto geladen. Vorlage kann erstellt werden.",
   "pattern.statusWorking": "Perlenvorlage wird erstellt...",
   "pattern.statusReady": "{width}x{height} Raster · {beads} Perlen · {colors} Farben",
-  "pattern.statusError": "Dieses Bild konnte nicht verarbeitet werden. Versuche JPG, PNG oder WebP."
+  "pattern.statusError": "Dieses Bild konnte nicht verarbeitet werden. Versuche JPG, PNG oder WebP.",
+  "pattern.aiTitle": "KI-Motivfreistellung",
+  "pattern.aiIdle": "Läuft automatisch nach dem Upload",
+  "pattern.aiButton": "KI-Bereinigung starten",
+  "pattern.aiLoading": "KI-Modell wird geladen...",
+  "pattern.aiProgress": "KI-Modell lädt {percent}%",
+  "pattern.aiRunning": "Hintergrund wird entfernt und Motiv behalten...",
+  "pattern.aiReady": "KI-Ausschnitt fertig. Vorlage aus Motiv neu erstellt.",
+  "pattern.aiFallback": "KI-Bereinigung fehlgeschlagen. Smarte lokale Bereinigung aktiv."
 });
 
 let currentLanguage = localStorage.getItem("pixelCharmLanguage") || "en";
@@ -561,11 +589,19 @@ const beadPalette = [
 ].map((color) => ({ ...color, rgb: hexToRgb(color.hex) }));
 
 const patternState = {
+  file: null,
   image: null,
+  originalImage: null,
+  aiImage: null,
+  aiPreviewUrl: "",
+  aiRunId: 0,
   cells: [],
   colors: [],
   csv: ""
 };
+
+const AI_BACKGROUND_REMOVAL_MODULE = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
+let aiBackgroundRemovalPromise = null;
 
 function syncHeader() {
   if (header && !document.body.classList.contains("inner-page")) {
@@ -708,6 +744,124 @@ function setPatternButtons(isReady) {
   }
 }
 
+function setAiStatus(key, replacements = {}) {
+  if (!aiStatus) {
+    return;
+  }
+  let text = t(key);
+  Object.entries(replacements).forEach(([name, value]) => {
+    text = text.replace(`{${name}}`, String(value));
+  });
+  aiStatus.textContent = text;
+}
+
+function setAiBusy(isBusy) {
+  if (aiCutoutButton) {
+    aiCutoutButton.disabled = isBusy || !patternState.file;
+  }
+}
+
+function resetPatternOutput() {
+  patternState.cells = [];
+  patternState.colors = [];
+  patternState.csv = "";
+  if (patternLegend) {
+    patternLegend.innerHTML = "";
+  }
+  setPatternButtons(false);
+}
+
+function loadImageFromSource(source) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image), { once: true });
+    image.addEventListener("error", reject, { once: true });
+    image.src = source;
+  });
+}
+
+function getAiBackgroundRemover() {
+  if (!aiBackgroundRemovalPromise) {
+    aiBackgroundRemovalPromise = import(AI_BACKGROUND_REMOVAL_MODULE).then((module) => {
+      return module.default || module.removeBackground || module.imglyRemoveBackground;
+    });
+  }
+  return aiBackgroundRemovalPromise;
+}
+
+function setAiPreview(blob) {
+  if (!aiPreviewImage || !aiPreviewWrap) {
+    return;
+  }
+  if (patternState.aiPreviewUrl) {
+    URL.revokeObjectURL(patternState.aiPreviewUrl);
+  }
+  patternState.aiPreviewUrl = URL.createObjectURL(blob);
+  aiPreviewImage.src = patternState.aiPreviewUrl;
+  aiPreviewWrap.hidden = false;
+}
+
+async function runAiCutout() {
+  if (!patternState.file) {
+    return;
+  }
+
+  const runId = patternState.aiRunId + 1;
+  patternState.aiRunId = runId;
+  setAiBusy(true);
+  setAiStatus("pattern.aiLoading");
+
+  try {
+    const removeBackground = await getAiBackgroundRemover();
+    if (runId !== patternState.aiRunId || typeof removeBackground !== "function") {
+      return;
+    }
+
+    setAiStatus("pattern.aiRunning");
+    const cutoutBlob = await removeBackground(patternState.file, {
+      model: "isnet_fp16",
+      output: { format: "image/png", type: "foreground" },
+      progress: (key, current, total) => {
+        if (runId !== patternState.aiRunId || !total) {
+          return;
+        }
+        const percent = Math.min(100, Math.round((current / total) * 100));
+        setAiStatus("pattern.aiProgress", { percent });
+      }
+    });
+
+    if (runId !== patternState.aiRunId) {
+      return;
+    }
+
+    setAiPreview(cutoutBlob);
+    const cutoutUrl = URL.createObjectURL(cutoutBlob);
+    const aiImage = await loadImageFromSource(cutoutUrl);
+    URL.revokeObjectURL(cutoutUrl);
+
+    if (runId !== patternState.aiRunId) {
+      return;
+    }
+
+    patternState.aiImage = aiImage;
+    patternState.image = aiImage;
+    setAiStatus("pattern.aiReady");
+    generatePattern();
+  } catch (error) {
+    if (runId === patternState.aiRunId) {
+      setAiStatus("pattern.aiFallback");
+      if (patternState.originalImage) {
+        patternState.image = patternState.originalImage;
+        generatePattern();
+      }
+    }
+  } finally {
+    if (runId === patternState.aiRunId) {
+      setAiBusy(false);
+    }
+  }
+}
+
 function drawImageCover(context, image, width, height) {
   const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
   const sourceWidth = width / scale;
@@ -717,29 +871,170 @@ function drawImageCover(context, image, width, height) {
   context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
 }
 
+function findAlphaBounds(image) {
+  const maxSide = 420;
+  const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+  const scanWidth = Math.max(1, Math.round(image.naturalWidth * scale));
+  const scanHeight = Math.max(1, Math.round(image.naturalHeight * scale));
+  const scanCanvas = document.createElement("canvas");
+  scanCanvas.width = scanWidth;
+  scanCanvas.height = scanHeight;
+  const scanContext = scanCanvas.getContext("2d", { willReadFrequently: true });
+  scanContext.drawImage(image, 0, 0, scanWidth, scanHeight);
+  const data = scanContext.getImageData(0, 0, scanWidth, scanHeight).data;
+  let minX = scanWidth;
+  let minY = scanHeight;
+  let maxX = -1;
+  let maxY = -1;
+  let visiblePixels = 0;
+
+  for (let y = 0; y < scanHeight; y += 1) {
+    for (let x = 0; x < scanWidth; x += 1) {
+      const alpha = data[(y * scanWidth + x) * 4 + 3];
+      if (alpha > 24) {
+        visiblePixels += 1;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+
+  if (!visiblePixels || visiblePixels > scanWidth * scanHeight * 0.96) {
+    return null;
+  }
+
+  const padding = Math.round(Math.max(maxX - minX, maxY - minY) * 0.08);
+  minX = Math.max(0, minX - padding);
+  minY = Math.max(0, minY - padding);
+  maxX = Math.min(scanWidth - 1, maxX + padding);
+  maxY = Math.min(scanHeight - 1, maxY + padding);
+
+  return {
+    x: minX / scale,
+    y: minY / scale,
+    width: (maxX - minX + 1) / scale,
+    height: (maxY - minY + 1) / scale
+  };
+}
+
+function drawImageSubjectAware(context, image, width, height) {
+  const bounds = findAlphaBounds(image);
+  if (!bounds) {
+    drawImageCover(context, image, width, height);
+    return;
+  }
+
+  const scale = Math.min(width / bounds.width, height / bounds.height);
+  const targetWidth = bounds.width * scale;
+  const targetHeight = bounds.height * scale;
+  const targetX = (width - targetWidth) / 2;
+  const targetY = (height - targetHeight) / 2;
+  context.drawImage(
+    image,
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height,
+    targetX,
+    targetY,
+    targetWidth,
+    targetHeight
+  );
+}
+
 function collectBackgroundSamples(imageData, width, height) {
   const samples = [];
-  const points = [
-    [0, 0],
-    [width - 1, 0],
-    [0, height - 1],
-    [width - 1, height - 1]
-  ];
+  const step = Math.max(1, Math.floor(Math.min(width, height) / 8));
+  const points = [];
+
+  for (let x = 0; x < width; x += step) {
+    points.push([x, 0], [x, height - 1]);
+  }
+  for (let y = 0; y < height; y += step) {
+    points.push([0, y], [width - 1, y]);
+  }
+
+  points.push([width - 1, height - 1]);
 
   points.forEach(([x, y]) => {
     const index = (y * width + x) * 4;
-    samples.push([imageData[index], imageData[index + 1], imageData[index + 2]]);
+    if (imageData[index + 3] > 32) {
+      samples.push([imageData[index], imageData[index + 1], imageData[index + 2]]);
+    }
   });
 
   return samples;
 }
 
 function shouldRemoveBackground(rgb, samples, threshold) {
-  if (threshold <= 0) {
+  if (threshold <= 0 || !samples.length) {
     return false;
   }
   const thresholdScore = threshold * threshold;
   return samples.some((sample) => colorDistance(rgb, sample) < thresholdScore);
+}
+
+function keepMainSubjectComponents(cells, width, height) {
+  const visited = new Uint8Array(cells.length);
+  const components = [];
+
+  for (let start = 0; start < cells.length; start += 1) {
+    if (!cells[start] || visited[start]) {
+      continue;
+    }
+
+    const component = [];
+    const stack = [start];
+    visited[start] = 1;
+
+    while (stack.length) {
+      const index = stack.pop();
+      component.push(index);
+      const x = index % width;
+      const neighbors = [];
+
+      if (x > 0) {
+        neighbors.push(index - 1);
+      }
+      if (x < width - 1) {
+        neighbors.push(index + 1);
+      }
+      if (index >= width) {
+        neighbors.push(index - width);
+      }
+      if (index < cells.length - width) {
+        neighbors.push(index + width);
+      }
+
+      neighbors.forEach((neighbor) => {
+        if (cells[neighbor] && !visited[neighbor]) {
+          visited[neighbor] = 1;
+          stack.push(neighbor);
+        }
+      });
+    }
+
+    components.push(component);
+  }
+
+  if (!components.length) {
+    return cells;
+  }
+
+  components.sort((a, b) => b.length - a.length);
+  const largest = components[0].length;
+  const minimumSubjectPart = Math.max(10, Math.floor(largest * 0.08));
+  const keep = new Set();
+
+  components.forEach((component, index) => {
+    if (index < 2 || component.length >= minimumSubjectPart) {
+      component.forEach((cellIndex) => keep.add(cellIndex));
+    }
+  });
+
+  return cells.map((cell, index) => (keep.has(index) ? cell : null));
 }
 
 function buildPatternCells(image, width, height, maxColors, trim) {
@@ -749,7 +1044,7 @@ function buildPatternCells(image, width, height, maxColors, trim) {
   const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
   sourceContext.imageSmoothingEnabled = true;
   sourceContext.imageSmoothingQuality = "high";
-  drawImageCover(sourceContext, image, width, height);
+  drawImageSubjectAware(sourceContext, image, width, height);
 
   const imageData = sourceContext.getImageData(0, 0, width, height).data;
   const backgroundSamples = collectBackgroundSamples(imageData, width, height);
@@ -778,7 +1073,6 @@ function buildPatternCells(image, width, height, maxColors, trim) {
     .slice(0, maxColors)
     .map(([code]) => beadPalette.find((color) => color.code === code));
 
-  const finalCounts = new Map();
   const cells = rawCells.map((color) => {
     if (!color) {
       return null;
@@ -786,15 +1080,22 @@ function buildPatternCells(image, width, height, maxColors, trim) {
     const finalColor = selectedPalette.some((item) => item.code === color.code)
       ? color
       : nearestPaletteColor(color.rgb, selectedPalette);
-    finalCounts.set(finalColor.code, (finalCounts.get(finalColor.code) || 0) + 1);
     return finalColor;
+  });
+
+  const cleanedCells = keepMainSubjectComponents(cells, width, height);
+  const finalCounts = new Map();
+  cleanedCells.forEach((color) => {
+    if (color) {
+      finalCounts.set(color.code, (finalCounts.get(color.code) || 0) + 1);
+    }
   });
 
   const colors = [...finalCounts.entries()]
     .map(([code, count]) => ({ ...beadPalette.find((color) => color.code === code), count }))
     .sort((a, b) => b.count - a.count);
 
-  return { cells, colors };
+  return { cells: cleanedCells, colors };
 }
 
 function readableTextColor(hex) {
@@ -938,32 +1239,52 @@ languageButtons.forEach((button) => {
 });
 
 patternGenerateButton?.addEventListener("click", generatePattern);
+aiCutoutButton?.addEventListener("click", runAiCutout);
 
 patternPhotoInput?.addEventListener("change", () => {
   const file = patternPhotoInput.files && patternPhotoInput.files[0];
   if (!file) {
+    patternState.file = null;
     patternState.image = null;
+    patternState.originalImage = null;
+    patternState.aiImage = null;
+    patternState.aiRunId += 1;
     patternStatus.textContent = t("pattern.statusEmpty");
-    patternLegend.innerHTML = "";
-    setPatternButtons(false);
+    setAiStatus("pattern.aiIdle");
+    setAiBusy(false);
+    if (aiPreviewWrap) {
+      aiPreviewWrap.hidden = true;
+    }
+    resetPatternOutput();
     return;
   }
 
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    const image = new Image();
-    image.addEventListener("load", () => {
+  patternState.file = file;
+  patternState.aiImage = null;
+  patternState.aiRunId += 1;
+  resetPatternOutput();
+  setAiStatus("pattern.aiLoading");
+  setAiBusy(false);
+  if (aiPreviewWrap) {
+    aiPreviewWrap.hidden = true;
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+  loadImageFromSource(imageUrl)
+    .then((image) => {
+      URL.revokeObjectURL(imageUrl);
+      patternState.originalImage = image;
       patternState.image = image;
       patternStatus.textContent = t("pattern.statusLoaded");
       generatePattern();
-    });
-    image.addEventListener("error", () => {
+      runAiCutout();
+    })
+    .catch(() => {
+      URL.revokeObjectURL(imageUrl);
       patternStatus.textContent = t("pattern.statusError");
+      setAiStatus("pattern.aiFallback");
       setPatternButtons(false);
     });
-    image.src = reader.result;
-  });
-  reader.readAsDataURL(file);
 });
 
 patternCsvButton?.addEventListener("click", () => {

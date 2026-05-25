@@ -52,6 +52,17 @@
               <input type="file" accept="image/png,image/jpeg,image/webp" data-pattern-photo>
             </label>
 
+            <div class="ai-panel">
+              <div class="ai-panel-copy">
+                <strong data-i18n="pattern.aiTitle">AI subject extraction</strong>
+                <span data-ai-status data-i18n="pattern.aiIdle">Runs automatically after upload</span>
+              </div>
+              <button class="button ghost-button" type="button" disabled data-ai-cutout data-i18n="pattern.aiButton">Run AI cleanup</button>
+              <div class="ai-preview" hidden data-ai-preview-wrap>
+                <img src="" alt="AI cutout preview" data-ai-preview>
+              </div>
+            </div>
+
             <div class="control-grid">
               <label>
                 <span><span data-i18n="pattern.width">Width</span> <strong data-pattern-width-value>48</strong></span>
